@@ -1,0 +1,1031 @@
+=== PETSc initialized ===
+
+===============================
+:      FEM calculation         :
+:     Laplace Equation         :
+:     Arya Retheeshan          :
+:                              :
+:   Time: 12:14:28             :
+:   Date: 2026-01-28           :
+===============================
+Input file: FEMstruct2d.inp
+line 5 : Debug level  1
+  Domain: Xmin=0.000000, Xmax=20.000000
+  Domain: Ymin=0.000000, Ymax=20.000000
+line 38 : Use annular geometry  1
+  Annular geometry: YES
+line 46 : Inner radius  0.000000
+  Inner radius: 0.000000
+line 51 : Outer radius  10.000000
+  Outer radius: 10.000000
+  Mesh generation: n_x=60, n_y=180, layers=1, auto=1
+line 171 : Stretch factor  1.000000
+  Stretch factor: 1.0000
+  Reconstruction grid: ndz_x=100, ndz_y=100 → dzx=0.200000, dzy=0.200000
+  Elements: node_elem=9, dof_per_node=4, Band_DOF=0
+    => nele_mat=36, ndeg=36
+line 227 : Gauss pts per side  6
+  Gauss pts: 6 per side -> 36 total
+line 233 : Relative tol  0.000000
+line 236 : Max iterations  10000
+line 239 : Absolute tol  0.000000
+line 242 : Divergence tol  100000.000000
+line 255 : Solver type  gmres
+line 262 : Output directory  ../output/
+
+=== Configuration Summary ===
+Mesh generation:
+  n_x = 60 elements
+  n_y = 180 elements
+  auto_generate = 1
+  use_annular = 1
+Output grid:
+  ndz_x = 100 points
+  ndz_y = 100 points
+Element type:
+  node_elem = 9
+  dof_per_node = 4
+=============================
+
+FEMstruct read: ndz_x=100, ndz_y=100, node_elem=9, dof_per_node=4
+Grid spacings: dzx=0.200000, dzy=0.200000
+Auto-generating mesh files (Rank 0)...
+
+=== Generating mesh for 4-node elements ===
+Target directory: ../mesh_4/
+Mesh parameters: n_x=60, n_y=180, annular=1
+Cleaned old mesh files in ../mesh_4/
+WARNING: For annular geometry, ymin should be 0.0 and ymax should be 1.0
+         Current: ymin=0.000000, ymax=20.000000
+Annular domain: Rin=0.000000, Rout=10.000000
+
+=== Generating mesh for 4-node elements in ../mesh_4/ ===
+  Mesh size: 60 x 180 elements
+  Total nodes: 11041, Total elements: 10800
+  Generated: ../mesh_4/node.dat (11041 nodes)
+  Generated: ../mesh_4/elem.dat (10800 elements)
+  Generating annular boundary nodes (radial only)...
+  Created 362 boundary nodes on radial edges
+  Generated: ../mesh_4/bnode.dat
+  Generated: ../mesh_4/belem.dat (480 boundary elements)
+  Generated: ../mesh_4/layer_def.dat (1 layers)
+  Generated: ../mesh_4/layer_map.dat (10800 elements mapped)
+
+=== Verifying mesh in ../mesh_4/ ===
+  Total elements: 0 (expected: 10800)
+  First element (ID=32):
+    Corners: BL=0, BR=0, TR=0, TL=0
+=== Verification complete ===
+
+=== Mesh generation complete ===
+
+
+=== Generating mesh for 9-node elements ===
+Target directory: ../mesh/
+Mesh parameters: n_x=60, n_y=180, annular=1
+Cleaned old mesh files in ../mesh/
+WARNING: For annular geometry, ymin should be 0.0 and ymax should be 1.0
+         Current: ymin=0.000000, ymax=20.000000
+Annular domain: Rin=0.000000, Rout=10.000000
+
+=== Generating mesh for 9-node elements in ../mesh/ ===
+  Mesh size: 60 x 180 elements
+  Total nodes: 43681, Total elements: 10800
+  Generated: ../mesh/node.dat (43681 nodes)
+  Generated: ../mesh/elem.dat (10800 elements)
+  Generating annular boundary nodes (radial only)...
+  Created 722 boundary nodes on radial edges
+  Generated: ../mesh/bnode.dat
+  Generated: ../mesh/belem.dat (480 boundary elements)
+  Generated: ../mesh/layer_def.dat (1 layers)
+  Generated: ../mesh/layer_map.dat (10800 elements mapped)
+
+=== Verifying mesh in ../mesh/ ===
+  Total elements: 0 (expected: 10800)
+  First element (ID=32):
+    Corners: BL=0, BR=0, TR=0, TL=0
+    Midsides: B=0, R=0, T=0, L=0, Center=0
+  ERROR: Node 1 = 0, expected 2
+  ERROR: Node 2 = 0, expected 244
+  ERROR: Node 3 = 0, expected 242
+  ERROR: Node 4 = 0, expected 1
+  ERROR: Node 5 = 0, expected 123
+  ERROR: Node 6 = 0, expected 243
+  ERROR: Node 7 = 0, expected 121
+  ERROR: Node 8 = 0, expected 122
+=== Verification complete ===
+
+=== Mesh generation complete ===
+
+Mesh generation complete.
+
+Reading mesh files...
+Reading mesh from: ../mesh/
+Elements: nelem=10800
+Nodes: ngnodes=43681
+  Max node ID: 43680
+Boundary: nbnode=722, nboundary=2
+  read bnode[0]: file_id=0  → node_id=0  coords=(0.000,0.000)
+  read bnode[1]: file_id=121  → node_id=121  coords=(0.000,0.056)
+  read bnode[2]: file_id=242  → node_id=242  coords=(0.000,0.111)
+  read bnode[3]: file_id=363  → node_id=363  coords=(0.000,0.167)
+  read bnode[4]: file_id=484  → node_id=484  coords=(0.000,0.222)
+  read bnode[5]: file_id=605  → node_id=605  coords=(0.000,0.278)
+  read bnode[6]: file_id=726  → node_id=726  coords=(0.000,0.333)
+  read bnode[7]: file_id=847  → node_id=847  coords=(0.000,0.389)
+  read bnode[8]: file_id=968  → node_id=968  coords=(0.000,0.444)
+  read bnode[9]: file_id=1089  → node_id=1089  coords=(0.000,0.500)
+  read bnode[10]: file_id=1210  → node_id=1210  coords=(0.000,0.556)
+  read bnode[11]: file_id=1331  → node_id=1331  coords=(0.000,0.611)
+  read bnode[12]: file_id=1452  → node_id=1452  coords=(0.000,0.667)
+  read bnode[13]: file_id=1573  → node_id=1573  coords=(0.000,0.722)
+  read bnode[14]: file_id=1694  → node_id=1694  coords=(0.000,0.778)
+  read bnode[15]: file_id=1815  → node_id=1815  coords=(0.000,0.833)
+  read bnode[16]: file_id=1936  → node_id=1936  coords=(0.000,0.889)
+  read bnode[17]: file_id=2057  → node_id=2057  coords=(0.000,0.944)
+  read bnode[18]: file_id=2178  → node_id=2178  coords=(0.000,1.000)
+  read bnode[19]: file_id=2299  → node_id=2299  coords=(0.000,1.056)
+  read bnode[20]: file_id=2420  → node_id=2420  coords=(0.000,1.111)
+  read bnode[21]: file_id=2541  → node_id=2541  coords=(0.000,1.167)
+  read bnode[22]: file_id=2662  → node_id=2662  coords=(0.000,1.222)
+  read bnode[23]: file_id=2783  → node_id=2783  coords=(0.000,1.278)
+  read bnode[24]: file_id=2904  → node_id=2904  coords=(0.000,1.333)
+  read bnode[25]: file_id=3025  → node_id=3025  coords=(0.000,1.389)
+  read bnode[26]: file_id=3146  → node_id=3146  coords=(0.000,1.444)
+  read bnode[27]: file_id=3267  → node_id=3267  coords=(0.000,1.500)
+  read bnode[28]: file_id=3388  → node_id=3388  coords=(0.000,1.556)
+  read bnode[29]: file_id=3509  → node_id=3509  coords=(0.000,1.611)
+  read bnode[30]: file_id=3630  → node_id=3630  coords=(0.000,1.667)
+  read bnode[31]: file_id=3751  → node_id=3751  coords=(0.000,1.722)
+  read bnode[32]: file_id=3872  → node_id=3872  coords=(0.000,1.778)
+  read bnode[33]: file_id=3993  → node_id=3993  coords=(0.000,1.833)
+  read bnode[34]: file_id=4114  → node_id=4114  coords=(0.000,1.889)
+  read bnode[35]: file_id=4235  → node_id=4235  coords=(0.000,1.944)
+  read bnode[36]: file_id=4356  → node_id=4356  coords=(0.000,2.000)
+  read bnode[37]: file_id=4477  → node_id=4477  coords=(0.000,2.056)
+  read bnode[38]: file_id=4598  → node_id=4598  coords=(0.000,2.111)
+  read bnode[39]: file_id=4719  → node_id=4719  coords=(0.000,2.167)
+  read bnode[40]: file_id=4840  → node_id=4840  coords=(0.000,2.222)
+  read bnode[41]: file_id=4961  → node_id=4961  coords=(0.000,2.278)
+  read bnode[42]: file_id=5082  → node_id=5082  coords=(0.000,2.333)
+  read bnode[43]: file_id=5203  → node_id=5203  coords=(0.000,2.389)
+  read bnode[44]: file_id=5324  → node_id=5324  coords=(0.000,2.444)
+  read bnode[45]: file_id=5445  → node_id=5445  coords=(0.000,2.500)
+  read bnode[46]: file_id=5566  → node_id=5566  coords=(0.000,2.556)
+  read bnode[47]: file_id=5687  → node_id=5687  coords=(0.000,2.611)
+  read bnode[48]: file_id=5808  → node_id=5808  coords=(0.000,2.667)
+  read bnode[49]: file_id=5929  → node_id=5929  coords=(0.000,2.722)
+  read bnode[50]: file_id=6050  → node_id=6050  coords=(0.000,2.778)
+  read bnode[51]: file_id=6171  → node_id=6171  coords=(0.000,2.833)
+  read bnode[52]: file_id=6292  → node_id=6292  coords=(0.000,2.889)
+  read bnode[53]: file_id=6413  → node_id=6413  coords=(0.000,2.944)
+  read bnode[54]: file_id=6534  → node_id=6534  coords=(0.000,3.000)
+  read bnode[55]: file_id=6655  → node_id=6655  coords=(0.000,3.056)
+  read bnode[56]: file_id=6776  → node_id=6776  coords=(0.000,3.111)
+  read bnode[57]: file_id=6897  → node_id=6897  coords=(0.000,3.167)
+  read bnode[58]: file_id=7018  → node_id=7018  coords=(0.000,3.222)
+  read bnode[59]: file_id=7139  → node_id=7139  coords=(0.000,3.278)
+  read bnode[60]: file_id=7260  → node_id=7260  coords=(0.000,3.333)
+  read bnode[61]: file_id=7381  → node_id=7381  coords=(0.000,3.389)
+  read bnode[62]: file_id=7502  → node_id=7502  coords=(0.000,3.444)
+  read bnode[63]: file_id=7623  → node_id=7623  coords=(0.000,3.500)
+  read bnode[64]: file_id=7744  → node_id=7744  coords=(0.000,3.556)
+  read bnode[65]: file_id=7865  → node_id=7865  coords=(0.000,3.611)
+  read bnode[66]: file_id=7986  → node_id=7986  coords=(0.000,3.667)
+  read bnode[67]: file_id=8107  → node_id=8107  coords=(0.000,3.722)
+  read bnode[68]: file_id=8228  → node_id=8228  coords=(0.000,3.778)
+  read bnode[69]: file_id=8349  → node_id=8349  coords=(0.000,3.833)
+  read bnode[70]: file_id=8470  → node_id=8470  coords=(0.000,3.889)
+  read bnode[71]: file_id=8591  → node_id=8591  coords=(0.000,3.944)
+  read bnode[72]: file_id=8712  → node_id=8712  coords=(0.000,4.000)
+  read bnode[73]: file_id=8833  → node_id=8833  coords=(0.000,4.056)
+  read bnode[74]: file_id=8954  → node_id=8954  coords=(0.000,4.111)
+  read bnode[75]: file_id=9075  → node_id=9075  coords=(0.000,4.167)
+  read bnode[76]: file_id=9196  → node_id=9196  coords=(0.000,4.222)
+  read bnode[77]: file_id=9317  → node_id=9317  coords=(0.000,4.278)
+  read bnode[78]: file_id=9438  → node_id=9438  coords=(0.000,4.333)
+  read bnode[79]: file_id=9559  → node_id=9559  coords=(0.000,4.389)
+  read bnode[80]: file_id=9680  → node_id=9680  coords=(0.000,4.444)
+  read bnode[81]: file_id=9801  → node_id=9801  coords=(0.000,4.500)
+  read bnode[82]: file_id=9922  → node_id=9922  coords=(0.000,4.556)
+  read bnode[83]: file_id=10043  → node_id=10043  coords=(0.000,4.611)
+  read bnode[84]: file_id=10164  → node_id=10164  coords=(0.000,4.667)
+  read bnode[85]: file_id=10285  → node_id=10285  coords=(0.000,4.722)
+  read bnode[86]: file_id=10406  → node_id=10406  coords=(0.000,4.778)
+  read bnode[87]: file_id=10527  → node_id=10527  coords=(0.000,4.833)
+  read bnode[88]: file_id=10648  → node_id=10648  coords=(0.000,4.889)
+  read bnode[89]: file_id=10769  → node_id=10769  coords=(0.000,4.944)
+  read bnode[90]: file_id=10890  → node_id=10890  coords=(0.000,5.000)
+  read bnode[91]: file_id=11011  → node_id=11011  coords=(0.000,5.056)
+  read bnode[92]: file_id=11132  → node_id=11132  coords=(0.000,5.111)
+  read bnode[93]: file_id=11253  → node_id=11253  coords=(0.000,5.167)
+  read bnode[94]: file_id=11374  → node_id=11374  coords=(0.000,5.222)
+  read bnode[95]: file_id=11495  → node_id=11495  coords=(0.000,5.278)
+  read bnode[96]: file_id=11616  → node_id=11616  coords=(0.000,5.333)
+  read bnode[97]: file_id=11737  → node_id=11737  coords=(0.000,5.389)
+  read bnode[98]: file_id=11858  → node_id=11858  coords=(0.000,5.444)
+  read bnode[99]: file_id=11979  → node_id=11979  coords=(0.000,5.500)
+  read bnode[100]: file_id=12100  → node_id=12100  coords=(0.000,5.556)
+  read bnode[101]: file_id=12221  → node_id=12221  coords=(0.000,5.611)
+  read bnode[102]: file_id=12342  → node_id=12342  coords=(0.000,5.667)
+  read bnode[103]: file_id=12463  → node_id=12463  coords=(0.000,5.722)
+  read bnode[104]: file_id=12584  → node_id=12584  coords=(0.000,5.778)
+  read bnode[105]: file_id=12705  → node_id=12705  coords=(0.000,5.833)
+  read bnode[106]: file_id=12826  → node_id=12826  coords=(0.000,5.889)
+  read bnode[107]: file_id=12947  → node_id=12947  coords=(0.000,5.944)
+  read bnode[108]: file_id=13068  → node_id=13068  coords=(0.000,6.000)
+  read bnode[109]: file_id=13189  → node_id=13189  coords=(0.000,6.056)
+  read bnode[110]: file_id=13310  → node_id=13310  coords=(0.000,6.111)
+  read bnode[111]: file_id=13431  → node_id=13431  coords=(0.000,6.167)
+  read bnode[112]: file_id=13552  → node_id=13552  coords=(0.000,6.222)
+  read bnode[113]: file_id=13673  → node_id=13673  coords=(0.000,6.278)
+  read bnode[114]: file_id=13794  → node_id=13794  coords=(0.000,6.333)
+  read bnode[115]: file_id=13915  → node_id=13915  coords=(0.000,6.389)
+  read bnode[116]: file_id=14036  → node_id=14036  coords=(0.000,6.444)
+  read bnode[117]: file_id=14157  → node_id=14157  coords=(0.000,6.500)
+  read bnode[118]: file_id=14278  → node_id=14278  coords=(0.000,6.556)
+  read bnode[119]: file_id=14399  → node_id=14399  coords=(0.000,6.611)
+  read bnode[120]: file_id=14520  → node_id=14520  coords=(0.000,6.667)
+  read bnode[121]: file_id=14641  → node_id=14641  coords=(0.000,6.722)
+  read bnode[122]: file_id=14762  → node_id=14762  coords=(0.000,6.778)
+  read bnode[123]: file_id=14883  → node_id=14883  coords=(0.000,6.833)
+  read bnode[124]: file_id=15004  → node_id=15004  coords=(0.000,6.889)
+  read bnode[125]: file_id=15125  → node_id=15125  coords=(0.000,6.944)
+  read bnode[126]: file_id=15246  → node_id=15246  coords=(0.000,7.000)
+  read bnode[127]: file_id=15367  → node_id=15367  coords=(0.000,7.056)
+  read bnode[128]: file_id=15488  → node_id=15488  coords=(0.000,7.111)
+  read bnode[129]: file_id=15609  → node_id=15609  coords=(0.000,7.167)
+  read bnode[130]: file_id=15730  → node_id=15730  coords=(0.000,7.222)
+  read bnode[131]: file_id=15851  → node_id=15851  coords=(0.000,7.278)
+  read bnode[132]: file_id=15972  → node_id=15972  coords=(0.000,7.333)
+  read bnode[133]: file_id=16093  → node_id=16093  coords=(0.000,7.389)
+  read bnode[134]: file_id=16214  → node_id=16214  coords=(0.000,7.444)
+  read bnode[135]: file_id=16335  → node_id=16335  coords=(0.000,7.500)
+  read bnode[136]: file_id=16456  → node_id=16456  coords=(0.000,7.556)
+  read bnode[137]: file_id=16577  → node_id=16577  coords=(0.000,7.611)
+  read bnode[138]: file_id=16698  → node_id=16698  coords=(0.000,7.667)
+  read bnode[139]: file_id=16819  → node_id=16819  coords=(0.000,7.722)
+  read bnode[140]: file_id=16940  → node_id=16940  coords=(0.000,7.778)
+  read bnode[141]: file_id=17061  → node_id=17061  coords=(0.000,7.833)
+  read bnode[142]: file_id=17182  → node_id=17182  coords=(0.000,7.889)
+  read bnode[143]: file_id=17303  → node_id=17303  coords=(0.000,7.944)
+  read bnode[144]: file_id=17424  → node_id=17424  coords=(0.000,8.000)
+  read bnode[145]: file_id=17545  → node_id=17545  coords=(0.000,8.056)
+  read bnode[146]: file_id=17666  → node_id=17666  coords=(0.000,8.111)
+  read bnode[147]: file_id=17787  → node_id=17787  coords=(0.000,8.167)
+  read bnode[148]: file_id=17908  → node_id=17908  coords=(0.000,8.222)
+  read bnode[149]: file_id=18029  → node_id=18029  coords=(0.000,8.278)
+  read bnode[150]: file_id=18150  → node_id=18150  coords=(0.000,8.333)
+  read bnode[151]: file_id=18271  → node_id=18271  coords=(0.000,8.389)
+  read bnode[152]: file_id=18392  → node_id=18392  coords=(0.000,8.444)
+  read bnode[153]: file_id=18513  → node_id=18513  coords=(0.000,8.500)
+  read bnode[154]: file_id=18634  → node_id=18634  coords=(0.000,8.556)
+  read bnode[155]: file_id=18755  → node_id=18755  coords=(0.000,8.611)
+  read bnode[156]: file_id=18876  → node_id=18876  coords=(0.000,8.667)
+  read bnode[157]: file_id=18997  → node_id=18997  coords=(0.000,8.722)
+  read bnode[158]: file_id=19118  → node_id=19118  coords=(0.000,8.778)
+  read bnode[159]: file_id=19239  → node_id=19239  coords=(0.000,8.833)
+  read bnode[160]: file_id=19360  → node_id=19360  coords=(0.000,8.889)
+  read bnode[161]: file_id=19481  → node_id=19481  coords=(0.000,8.944)
+  read bnode[162]: file_id=19602  → node_id=19602  coords=(0.000,9.000)
+  read bnode[163]: file_id=19723  → node_id=19723  coords=(0.000,9.056)
+  read bnode[164]: file_id=19844  → node_id=19844  coords=(0.000,9.111)
+  read bnode[165]: file_id=19965  → node_id=19965  coords=(0.000,9.167)
+  read bnode[166]: file_id=20086  → node_id=20086  coords=(0.000,9.222)
+  read bnode[167]: file_id=20207  → node_id=20207  coords=(0.000,9.278)
+  read bnode[168]: file_id=20328  → node_id=20328  coords=(0.000,9.333)
+  read bnode[169]: file_id=20449  → node_id=20449  coords=(0.000,9.389)
+  read bnode[170]: file_id=20570  → node_id=20570  coords=(0.000,9.444)
+  read bnode[171]: file_id=20691  → node_id=20691  coords=(0.000,9.500)
+  read bnode[172]: file_id=20812  → node_id=20812  coords=(0.000,9.556)
+  read bnode[173]: file_id=20933  → node_id=20933  coords=(0.000,9.611)
+  read bnode[174]: file_id=21054  → node_id=21054  coords=(0.000,9.667)
+  read bnode[175]: file_id=21175  → node_id=21175  coords=(0.000,9.722)
+  read bnode[176]: file_id=21296  → node_id=21296  coords=(0.000,9.778)
+  read bnode[177]: file_id=21417  → node_id=21417  coords=(0.000,9.833)
+  read bnode[178]: file_id=21538  → node_id=21538  coords=(0.000,9.889)
+  read bnode[179]: file_id=21659  → node_id=21659  coords=(0.000,9.944)
+  read bnode[180]: file_id=21780  → node_id=21780  coords=(0.000,10.000)
+  read bnode[181]: file_id=21901  → node_id=21901  coords=(0.000,10.056)
+  read bnode[182]: file_id=22022  → node_id=22022  coords=(0.000,10.111)
+  read bnode[183]: file_id=22143  → node_id=22143  coords=(0.000,10.167)
+  read bnode[184]: file_id=22264  → node_id=22264  coords=(0.000,10.222)
+  read bnode[185]: file_id=22385  → node_id=22385  coords=(0.000,10.278)
+  read bnode[186]: file_id=22506  → node_id=22506  coords=(0.000,10.333)
+  read bnode[187]: file_id=22627  → node_id=22627  coords=(0.000,10.389)
+  read bnode[188]: file_id=22748  → node_id=22748  coords=(0.000,10.444)
+  read bnode[189]: file_id=22869  → node_id=22869  coords=(0.000,10.500)
+  read bnode[190]: file_id=22990  → node_id=22990  coords=(0.000,10.556)
+  read bnode[191]: file_id=23111  → node_id=23111  coords=(0.000,10.611)
+  read bnode[192]: file_id=23232  → node_id=23232  coords=(0.000,10.667)
+  read bnode[193]: file_id=23353  → node_id=23353  coords=(0.000,10.722)
+  read bnode[194]: file_id=23474  → node_id=23474  coords=(0.000,10.778)
+  read bnode[195]: file_id=23595  → node_id=23595  coords=(0.000,10.833)
+  read bnode[196]: file_id=23716  → node_id=23716  coords=(0.000,10.889)
+  read bnode[197]: file_id=23837  → node_id=23837  coords=(0.000,10.944)
+  read bnode[198]: file_id=23958  → node_id=23958  coords=(0.000,11.000)
+  read bnode[199]: file_id=24079  → node_id=24079  coords=(0.000,11.056)
+  read bnode[200]: file_id=24200  → node_id=24200  coords=(0.000,11.111)
+  read bnode[201]: file_id=24321  → node_id=24321  coords=(0.000,11.167)
+  read bnode[202]: file_id=24442  → node_id=24442  coords=(0.000,11.222)
+  read bnode[203]: file_id=24563  → node_id=24563  coords=(0.000,11.278)
+  read bnode[204]: file_id=24684  → node_id=24684  coords=(0.000,11.333)
+  read bnode[205]: file_id=24805  → node_id=24805  coords=(0.000,11.389)
+  read bnode[206]: file_id=24926  → node_id=24926  coords=(0.000,11.444)
+  read bnode[207]: file_id=25047  → node_id=25047  coords=(0.000,11.500)
+  read bnode[208]: file_id=25168  → node_id=25168  coords=(0.000,11.556)
+  read bnode[209]: file_id=25289  → node_id=25289  coords=(0.000,11.611)
+  read bnode[210]: file_id=25410  → node_id=25410  coords=(0.000,11.667)
+  read bnode[211]: file_id=25531  → node_id=25531  coords=(0.000,11.722)
+  read bnode[212]: file_id=25652  → node_id=25652  coords=(0.000,11.778)
+  read bnode[213]: file_id=25773  → node_id=25773  coords=(0.000,11.833)
+  read bnode[214]: file_id=25894  → node_id=25894  coords=(0.000,11.889)
+  read bnode[215]: file_id=26015  → node_id=26015  coords=(0.000,11.944)
+  read bnode[216]: file_id=26136  → node_id=26136  coords=(0.000,12.000)
+  read bnode[217]: file_id=26257  → node_id=26257  coords=(0.000,12.056)
+  read bnode[218]: file_id=26378  → node_id=26378  coords=(0.000,12.111)
+  read bnode[219]: file_id=26499  → node_id=26499  coords=(0.000,12.167)
+  read bnode[220]: file_id=26620  → node_id=26620  coords=(0.000,12.222)
+  read bnode[221]: file_id=26741  → node_id=26741  coords=(0.000,12.278)
+  read bnode[222]: file_id=26862  → node_id=26862  coords=(0.000,12.333)
+  read bnode[223]: file_id=26983  → node_id=26983  coords=(0.000,12.389)
+  read bnode[224]: file_id=27104  → node_id=27104  coords=(0.000,12.444)
+  read bnode[225]: file_id=27225  → node_id=27225  coords=(0.000,12.500)
+  read bnode[226]: file_id=27346  → node_id=27346  coords=(0.000,12.556)
+  read bnode[227]: file_id=27467  → node_id=27467  coords=(0.000,12.611)
+  read bnode[228]: file_id=27588  → node_id=27588  coords=(0.000,12.667)
+  read bnode[229]: file_id=27709  → node_id=27709  coords=(0.000,12.722)
+  read bnode[230]: file_id=27830  → node_id=27830  coords=(0.000,12.778)
+  read bnode[231]: file_id=27951  → node_id=27951  coords=(0.000,12.833)
+  read bnode[232]: file_id=28072  → node_id=28072  coords=(0.000,12.889)
+  read bnode[233]: file_id=28193  → node_id=28193  coords=(0.000,12.944)
+  read bnode[234]: file_id=28314  → node_id=28314  coords=(0.000,13.000)
+  read bnode[235]: file_id=28435  → node_id=28435  coords=(0.000,13.056)
+  read bnode[236]: file_id=28556  → node_id=28556  coords=(0.000,13.111)
+  read bnode[237]: file_id=28677  → node_id=28677  coords=(0.000,13.167)
+  read bnode[238]: file_id=28798  → node_id=28798  coords=(0.000,13.222)
+  read bnode[239]: file_id=28919  → node_id=28919  coords=(0.000,13.278)
+  read bnode[240]: file_id=29040  → node_id=29040  coords=(0.000,13.333)
+  read bnode[241]: file_id=29161  → node_id=29161  coords=(0.000,13.389)
+  read bnode[242]: file_id=29282  → node_id=29282  coords=(0.000,13.444)
+  read bnode[243]: file_id=29403  → node_id=29403  coords=(0.000,13.500)
+  read bnode[244]: file_id=29524  → node_id=29524  coords=(0.000,13.556)
+  read bnode[245]: file_id=29645  → node_id=29645  coords=(0.000,13.611)
+  read bnode[246]: file_id=29766  → node_id=29766  coords=(0.000,13.667)
+  read bnode[247]: file_id=29887  → node_id=29887  coords=(0.000,13.722)
+  read bnode[248]: file_id=30008  → node_id=30008  coords=(0.000,13.778)
+  read bnode[249]: file_id=30129  → node_id=30129  coords=(0.000,13.833)
+  read bnode[250]: file_id=30250  → node_id=30250  coords=(0.000,13.889)
+  read bnode[251]: file_id=30371  → node_id=30371  coords=(0.000,13.944)
+  read bnode[252]: file_id=30492  → node_id=30492  coords=(0.000,14.000)
+  read bnode[253]: file_id=30613  → node_id=30613  coords=(0.000,14.056)
+  read bnode[254]: file_id=30734  → node_id=30734  coords=(0.000,14.111)
+  read bnode[255]: file_id=30855  → node_id=30855  coords=(0.000,14.167)
+  read bnode[256]: file_id=30976  → node_id=30976  coords=(0.000,14.222)
+  read bnode[257]: file_id=31097  → node_id=31097  coords=(0.000,14.278)
+  read bnode[258]: file_id=31218  → node_id=31218  coords=(0.000,14.333)
+  read bnode[259]: file_id=31339  → node_id=31339  coords=(0.000,14.389)
+  read bnode[260]: file_id=31460  → node_id=31460  coords=(0.000,14.444)
+  read bnode[261]: file_id=31581  → node_id=31581  coords=(0.000,14.500)
+  read bnode[262]: file_id=31702  → node_id=31702  coords=(0.000,14.556)
+  read bnode[263]: file_id=31823  → node_id=31823  coords=(0.000,14.611)
+  read bnode[264]: file_id=31944  → node_id=31944  coords=(0.000,14.667)
+  read bnode[265]: file_id=32065  → node_id=32065  coords=(0.000,14.722)
+  read bnode[266]: file_id=32186  → node_id=32186  coords=(0.000,14.778)
+  read bnode[267]: file_id=32307  → node_id=32307  coords=(0.000,14.833)
+  read bnode[268]: file_id=32428  → node_id=32428  coords=(0.000,14.889)
+  read bnode[269]: file_id=32549  → node_id=32549  coords=(0.000,14.944)
+  read bnode[270]: file_id=32670  → node_id=32670  coords=(0.000,15.000)
+  read bnode[271]: file_id=32791  → node_id=32791  coords=(0.000,15.056)
+  read bnode[272]: file_id=32912  → node_id=32912  coords=(0.000,15.111)
+  read bnode[273]: file_id=33033  → node_id=33033  coords=(0.000,15.167)
+  read bnode[274]: file_id=33154  → node_id=33154  coords=(0.000,15.222)
+  read bnode[275]: file_id=33275  → node_id=33275  coords=(0.000,15.278)
+  read bnode[276]: file_id=33396  → node_id=33396  coords=(0.000,15.333)
+  read bnode[277]: file_id=33517  → node_id=33517  coords=(0.000,15.389)
+  read bnode[278]: file_id=33638  → node_id=33638  coords=(0.000,15.444)
+  read bnode[279]: file_id=33759  → node_id=33759  coords=(0.000,15.500)
+  read bnode[280]: file_id=33880  → node_id=33880  coords=(0.000,15.556)
+  read bnode[281]: file_id=34001  → node_id=34001  coords=(0.000,15.611)
+  read bnode[282]: file_id=34122  → node_id=34122  coords=(0.000,15.667)
+  read bnode[283]: file_id=34243  → node_id=34243  coords=(0.000,15.722)
+  read bnode[284]: file_id=34364  → node_id=34364  coords=(0.000,15.778)
+  read bnode[285]: file_id=34485  → node_id=34485  coords=(0.000,15.833)
+  read bnode[286]: file_id=34606  → node_id=34606  coords=(0.000,15.889)
+  read bnode[287]: file_id=34727  → node_id=34727  coords=(0.000,15.944)
+  read bnode[288]: file_id=34848  → node_id=34848  coords=(0.000,16.000)
+  read bnode[289]: file_id=34969  → node_id=34969  coords=(0.000,16.056)
+  read bnode[290]: file_id=35090  → node_id=35090  coords=(0.000,16.111)
+  read bnode[291]: file_id=35211  → node_id=35211  coords=(0.000,16.167)
+  read bnode[292]: file_id=35332  → node_id=35332  coords=(0.000,16.222)
+  read bnode[293]: file_id=35453  → node_id=35453  coords=(0.000,16.278)
+  read bnode[294]: file_id=35574  → node_id=35574  coords=(0.000,16.333)
+  read bnode[295]: file_id=35695  → node_id=35695  coords=(0.000,16.389)
+  read bnode[296]: file_id=35816  → node_id=35816  coords=(0.000,16.444)
+  read bnode[297]: file_id=35937  → node_id=35937  coords=(0.000,16.500)
+  read bnode[298]: file_id=36058  → node_id=36058  coords=(0.000,16.556)
+  read bnode[299]: file_id=36179  → node_id=36179  coords=(0.000,16.611)
+  read bnode[300]: file_id=36300  → node_id=36300  coords=(0.000,16.667)
+  read bnode[301]: file_id=36421  → node_id=36421  coords=(0.000,16.722)
+  read bnode[302]: file_id=36542  → node_id=36542  coords=(0.000,16.778)
+  read bnode[303]: file_id=36663  → node_id=36663  coords=(0.000,16.833)
+  read bnode[304]: file_id=36784  → node_id=36784  coords=(0.000,16.889)
+  read bnode[305]: file_id=36905  → node_id=36905  coords=(0.000,16.944)
+  read bnode[306]: file_id=37026  → node_id=37026  coords=(0.000,17.000)
+  read bnode[307]: file_id=37147  → node_id=37147  coords=(0.000,17.056)
+  read bnode[308]: file_id=37268  → node_id=37268  coords=(0.000,17.111)
+  read bnode[309]: file_id=37389  → node_id=37389  coords=(0.000,17.167)
+  read bnode[310]: file_id=37510  → node_id=37510  coords=(0.000,17.222)
+  read bnode[311]: file_id=37631  → node_id=37631  coords=(0.000,17.278)
+  read bnode[312]: file_id=37752  → node_id=37752  coords=(0.000,17.333)
+  read bnode[313]: file_id=37873  → node_id=37873  coords=(0.000,17.389)
+  read bnode[314]: file_id=37994  → node_id=37994  coords=(0.000,17.444)
+  read bnode[315]: file_id=38115  → node_id=38115  coords=(0.000,17.500)
+  read bnode[316]: file_id=38236  → node_id=38236  coords=(0.000,17.556)
+  read bnode[317]: file_id=38357  → node_id=38357  coords=(0.000,17.611)
+  read bnode[318]: file_id=38478  → node_id=38478  coords=(0.000,17.667)
+  read bnode[319]: file_id=38599  → node_id=38599  coords=(0.000,17.722)
+  read bnode[320]: file_id=38720  → node_id=38720  coords=(0.000,17.778)
+  read bnode[321]: file_id=38841  → node_id=38841  coords=(0.000,17.833)
+  read bnode[322]: file_id=38962  → node_id=38962  coords=(0.000,17.889)
+  read bnode[323]: file_id=39083  → node_id=39083  coords=(0.000,17.944)
+  read bnode[324]: file_id=39204  → node_id=39204  coords=(0.000,18.000)
+  read bnode[325]: file_id=39325  → node_id=39325  coords=(0.000,18.056)
+  read bnode[326]: file_id=39446  → node_id=39446  coords=(0.000,18.111)
+  read bnode[327]: file_id=39567  → node_id=39567  coords=(0.000,18.167)
+  read bnode[328]: file_id=39688  → node_id=39688  coords=(0.000,18.222)
+  read bnode[329]: file_id=39809  → node_id=39809  coords=(0.000,18.278)
+  read bnode[330]: file_id=39930  → node_id=39930  coords=(0.000,18.333)
+  read bnode[331]: file_id=40051  → node_id=40051  coords=(0.000,18.389)
+  read bnode[332]: file_id=40172  → node_id=40172  coords=(0.000,18.444)
+  read bnode[333]: file_id=40293  → node_id=40293  coords=(0.000,18.500)
+  read bnode[334]: file_id=40414  → node_id=40414  coords=(0.000,18.556)
+  read bnode[335]: file_id=40535  → node_id=40535  coords=(0.000,18.611)
+  read bnode[336]: file_id=40656  → node_id=40656  coords=(0.000,18.667)
+  read bnode[337]: file_id=40777  → node_id=40777  coords=(0.000,18.722)
+  read bnode[338]: file_id=40898  → node_id=40898  coords=(0.000,18.778)
+  read bnode[339]: file_id=41019  → node_id=41019  coords=(0.000,18.833)
+  read bnode[340]: file_id=41140  → node_id=41140  coords=(0.000,18.889)
+  read bnode[341]: file_id=41261  → node_id=41261  coords=(0.000,18.944)
+  read bnode[342]: file_id=41382  → node_id=41382  coords=(0.000,19.000)
+  read bnode[343]: file_id=41503  → node_id=41503  coords=(0.000,19.056)
+  read bnode[344]: file_id=41624  → node_id=41624  coords=(0.000,19.111)
+  read bnode[345]: file_id=41745  → node_id=41745  coords=(0.000,19.167)
+  read bnode[346]: file_id=41866  → node_id=41866  coords=(0.000,19.222)
+  read bnode[347]: file_id=41987  → node_id=41987  coords=(0.000,19.278)
+  read bnode[348]: file_id=42108  → node_id=42108  coords=(0.000,19.333)
+  read bnode[349]: file_id=42229  → node_id=42229  coords=(0.000,19.389)
+  read bnode[350]: file_id=42350  → node_id=42350  coords=(0.000,19.444)
+  read bnode[351]: file_id=42471  → node_id=42471  coords=(0.000,19.500)
+  read bnode[352]: file_id=42592  → node_id=42592  coords=(0.000,19.556)
+  read bnode[353]: file_id=42713  → node_id=42713  coords=(0.000,19.611)
+  read bnode[354]: file_id=42834  → node_id=42834  coords=(0.000,19.667)
+  read bnode[355]: file_id=42955  → node_id=42955  coords=(0.000,19.722)
+  read bnode[356]: file_id=43076  → node_id=43076  coords=(0.000,19.778)
+  read bnode[357]: file_id=43197  → node_id=43197  coords=(0.000,19.833)
+  read bnode[358]: file_id=43318  → node_id=43318  coords=(0.000,19.889)
+  read bnode[359]: file_id=43439  → node_id=43439  coords=(0.000,19.944)
+  read bnode[360]: file_id=43560  → node_id=43560  coords=(0.000,20.000)
+  read bnode[361]: file_id=120  → node_id=120  coords=(20.000,0.000)
+  read bnode[362]: file_id=241  → node_id=241  coords=(20.000,0.056)
+  read bnode[363]: file_id=362  → node_id=362  coords=(20.000,0.111)
+  read bnode[364]: file_id=483  → node_id=483  coords=(20.000,0.167)
+  read bnode[365]: file_id=604  → node_id=604  coords=(20.000,0.222)
+  read bnode[366]: file_id=725  → node_id=725  coords=(20.000,0.278)
+  read bnode[367]: file_id=846  → node_id=846  coords=(20.000,0.333)
+  read bnode[368]: file_id=967  → node_id=967  coords=(20.000,0.389)
+  read bnode[369]: file_id=1088  → node_id=1088  coords=(20.000,0.444)
+  read bnode[370]: file_id=1209  → node_id=1209  coords=(20.000,0.500)
+  read bnode[371]: file_id=1330  → node_id=1330  coords=(20.000,0.556)
+  read bnode[372]: file_id=1451  → node_id=1451  coords=(20.000,0.611)
+  read bnode[373]: file_id=1572  → node_id=1572  coords=(20.000,0.667)
+  read bnode[374]: file_id=1693  → node_id=1693  coords=(20.000,0.722)
+  read bnode[375]: file_id=1814  → node_id=1814  coords=(20.000,0.778)
+  read bnode[376]: file_id=1935  → node_id=1935  coords=(20.000,0.833)
+  read bnode[377]: file_id=2056  → node_id=2056  coords=(20.000,0.889)
+  read bnode[378]: file_id=2177  → node_id=2177  coords=(20.000,0.944)
+  read bnode[379]: file_id=2298  → node_id=2298  coords=(20.000,1.000)
+  read bnode[380]: file_id=2419  → node_id=2419  coords=(20.000,1.056)
+  read bnode[381]: file_id=2540  → node_id=2540  coords=(20.000,1.111)
+  read bnode[382]: file_id=2661  → node_id=2661  coords=(20.000,1.167)
+  read bnode[383]: file_id=2782  → node_id=2782  coords=(20.000,1.222)
+  read bnode[384]: file_id=2903  → node_id=2903  coords=(20.000,1.278)
+  read bnode[385]: file_id=3024  → node_id=3024  coords=(20.000,1.333)
+  read bnode[386]: file_id=3145  → node_id=3145  coords=(20.000,1.389)
+  read bnode[387]: file_id=3266  → node_id=3266  coords=(20.000,1.444)
+  read bnode[388]: file_id=3387  → node_id=3387  coords=(20.000,1.500)
+  read bnode[389]: file_id=3508  → node_id=3508  coords=(20.000,1.556)
+  read bnode[390]: file_id=3629  → node_id=3629  coords=(20.000,1.611)
+  read bnode[391]: file_id=3750  → node_id=3750  coords=(20.000,1.667)
+  read bnode[392]: file_id=3871  → node_id=3871  coords=(20.000,1.722)
+  read bnode[393]: file_id=3992  → node_id=3992  coords=(20.000,1.778)
+  read bnode[394]: file_id=4113  → node_id=4113  coords=(20.000,1.833)
+  read bnode[395]: file_id=4234  → node_id=4234  coords=(20.000,1.889)
+  read bnode[396]: file_id=4355  → node_id=4355  coords=(20.000,1.944)
+  read bnode[397]: file_id=4476  → node_id=4476  coords=(20.000,2.000)
+  read bnode[398]: file_id=4597  → node_id=4597  coords=(20.000,2.056)
+  read bnode[399]: file_id=4718  → node_id=4718  coords=(20.000,2.111)
+  read bnode[400]: file_id=4839  → node_id=4839  coords=(20.000,2.167)
+  read bnode[401]: file_id=4960  → node_id=4960  coords=(20.000,2.222)
+  read bnode[402]: file_id=5081  → node_id=5081  coords=(20.000,2.278)
+  read bnode[403]: file_id=5202  → node_id=5202  coords=(20.000,2.333)
+  read bnode[404]: file_id=5323  → node_id=5323  coords=(20.000,2.389)
+  read bnode[405]: file_id=5444  → node_id=5444  coords=(20.000,2.444)
+  read bnode[406]: file_id=5565  → node_id=5565  coords=(20.000,2.500)
+  read bnode[407]: file_id=5686  → node_id=5686  coords=(20.000,2.556)
+  read bnode[408]: file_id=5807  → node_id=5807  coords=(20.000,2.611)
+  read bnode[409]: file_id=5928  → node_id=5928  coords=(20.000,2.667)
+  read bnode[410]: file_id=6049  → node_id=6049  coords=(20.000,2.722)
+  read bnode[411]: file_id=6170  → node_id=6170  coords=(20.000,2.778)
+  read bnode[412]: file_id=6291  → node_id=6291  coords=(20.000,2.833)
+  read bnode[413]: file_id=6412  → node_id=6412  coords=(20.000,2.889)
+  read bnode[414]: file_id=6533  → node_id=6533  coords=(20.000,2.944)
+  read bnode[415]: file_id=6654  → node_id=6654  coords=(20.000,3.000)
+  read bnode[416]: file_id=6775  → node_id=6775  coords=(20.000,3.056)
+  read bnode[417]: file_id=6896  → node_id=6896  coords=(20.000,3.111)
+  read bnode[418]: file_id=7017  → node_id=7017  coords=(20.000,3.167)
+  read bnode[419]: file_id=7138  → node_id=7138  coords=(20.000,3.222)
+  read bnode[420]: file_id=7259  → node_id=7259  coords=(20.000,3.278)
+  read bnode[421]: file_id=7380  → node_id=7380  coords=(20.000,3.333)
+  read bnode[422]: file_id=7501  → node_id=7501  coords=(20.000,3.389)
+  read bnode[423]: file_id=7622  → node_id=7622  coords=(20.000,3.444)
+  read bnode[424]: file_id=7743  → node_id=7743  coords=(20.000,3.500)
+  read bnode[425]: file_id=7864  → node_id=7864  coords=(20.000,3.556)
+  read bnode[426]: file_id=7985  → node_id=7985  coords=(20.000,3.611)
+  read bnode[427]: file_id=8106  → node_id=8106  coords=(20.000,3.667)
+  read bnode[428]: file_id=8227  → node_id=8227  coords=(20.000,3.722)
+  read bnode[429]: file_id=8348  → node_id=8348  coords=(20.000,3.778)
+  read bnode[430]: file_id=8469  → node_id=8469  coords=(20.000,3.833)
+  read bnode[431]: file_id=8590  → node_id=8590  coords=(20.000,3.889)
+  read bnode[432]: file_id=8711  → node_id=8711  coords=(20.000,3.944)
+  read bnode[433]: file_id=8832  → node_id=8832  coords=(20.000,4.000)
+  read bnode[434]: file_id=8953  → node_id=8953  coords=(20.000,4.056)
+  read bnode[435]: file_id=9074  → node_id=9074  coords=(20.000,4.111)
+  read bnode[436]: file_id=9195  → node_id=9195  coords=(20.000,4.167)
+  read bnode[437]: file_id=9316  → node_id=9316  coords=(20.000,4.222)
+  read bnode[438]: file_id=9437  → node_id=9437  coords=(20.000,4.278)
+  read bnode[439]: file_id=9558  → node_id=9558  coords=(20.000,4.333)
+  read bnode[440]: file_id=9679  → node_id=9679  coords=(20.000,4.389)
+  read bnode[441]: file_id=9800  → node_id=9800  coords=(20.000,4.444)
+  read bnode[442]: file_id=9921  → node_id=9921  coords=(20.000,4.500)
+  read bnode[443]: file_id=10042  → node_id=10042  coords=(20.000,4.556)
+  read bnode[444]: file_id=10163  → node_id=10163  coords=(20.000,4.611)
+  read bnode[445]: file_id=10284  → node_id=10284  coords=(20.000,4.667)
+  read bnode[446]: file_id=10405  → node_id=10405  coords=(20.000,4.722)
+  read bnode[447]: file_id=10526  → node_id=10526  coords=(20.000,4.778)
+  read bnode[448]: file_id=10647  → node_id=10647  coords=(20.000,4.833)
+  read bnode[449]: file_id=10768  → node_id=10768  coords=(20.000,4.889)
+  read bnode[450]: file_id=10889  → node_id=10889  coords=(20.000,4.944)
+  read bnode[451]: file_id=11010  → node_id=11010  coords=(20.000,5.000)
+  read bnode[452]: file_id=11131  → node_id=11131  coords=(20.000,5.056)
+  read bnode[453]: file_id=11252  → node_id=11252  coords=(20.000,5.111)
+  read bnode[454]: file_id=11373  → node_id=11373  coords=(20.000,5.167)
+  read bnode[455]: file_id=11494  → node_id=11494  coords=(20.000,5.222)
+  read bnode[456]: file_id=11615  → node_id=11615  coords=(20.000,5.278)
+  read bnode[457]: file_id=11736  → node_id=11736  coords=(20.000,5.333)
+  read bnode[458]: file_id=11857  → node_id=11857  coords=(20.000,5.389)
+  read bnode[459]: file_id=11978  → node_id=11978  coords=(20.000,5.444)
+  read bnode[460]: file_id=12099  → node_id=12099  coords=(20.000,5.500)
+  read bnode[461]: file_id=12220  → node_id=12220  coords=(20.000,5.556)
+  read bnode[462]: file_id=12341  → node_id=12341  coords=(20.000,5.611)
+  read bnode[463]: file_id=12462  → node_id=12462  coords=(20.000,5.667)
+  read bnode[464]: file_id=12583  → node_id=12583  coords=(20.000,5.722)
+  read bnode[465]: file_id=12704  → node_id=12704  coords=(20.000,5.778)
+  read bnode[466]: file_id=12825  → node_id=12825  coords=(20.000,5.833)
+  read bnode[467]: file_id=12946  → node_id=12946  coords=(20.000,5.889)
+  read bnode[468]: file_id=13067  → node_id=13067  coords=(20.000,5.944)
+  read bnode[469]: file_id=13188  → node_id=13188  coords=(20.000,6.000)
+  read bnode[470]: file_id=13309  → node_id=13309  coords=(20.000,6.056)
+  read bnode[471]: file_id=13430  → node_id=13430  coords=(20.000,6.111)
+  read bnode[472]: file_id=13551  → node_id=13551  coords=(20.000,6.167)
+  read bnode[473]: file_id=13672  → node_id=13672  coords=(20.000,6.222)
+  read bnode[474]: file_id=13793  → node_id=13793  coords=(20.000,6.278)
+  read bnode[475]: file_id=13914  → node_id=13914  coords=(20.000,6.333)
+  read bnode[476]: file_id=14035  → node_id=14035  coords=(20.000,6.389)
+  read bnode[477]: file_id=14156  → node_id=14156  coords=(20.000,6.444)
+  read bnode[478]: file_id=14277  → node_id=14277  coords=(20.000,6.500)
+  read bnode[479]: file_id=14398  → node_id=14398  coords=(20.000,6.556)
+  read bnode[480]: file_id=14519  → node_id=14519  coords=(20.000,6.611)
+  read bnode[481]: file_id=14640  → node_id=14640  coords=(20.000,6.667)
+  read bnode[482]: file_id=14761  → node_id=14761  coords=(20.000,6.722)
+  read bnode[483]: file_id=14882  → node_id=14882  coords=(20.000,6.778)
+  read bnode[484]: file_id=15003  → node_id=15003  coords=(20.000,6.833)
+  read bnode[485]: file_id=15124  → node_id=15124  coords=(20.000,6.889)
+  read bnode[486]: file_id=15245  → node_id=15245  coords=(20.000,6.944)
+  read bnode[487]: file_id=15366  → node_id=15366  coords=(20.000,7.000)
+  read bnode[488]: file_id=15487  → node_id=15487  coords=(20.000,7.056)
+  read bnode[489]: file_id=15608  → node_id=15608  coords=(20.000,7.111)
+  read bnode[490]: file_id=15729  → node_id=15729  coords=(20.000,7.167)
+  read bnode[491]: file_id=15850  → node_id=15850  coords=(20.000,7.222)
+  read bnode[492]: file_id=15971  → node_id=15971  coords=(20.000,7.278)
+  read bnode[493]: file_id=16092  → node_id=16092  coords=(20.000,7.333)
+  read bnode[494]: file_id=16213  → node_id=16213  coords=(20.000,7.389)
+  read bnode[495]: file_id=16334  → node_id=16334  coords=(20.000,7.444)
+  read bnode[496]: file_id=16455  → node_id=16455  coords=(20.000,7.500)
+  read bnode[497]: file_id=16576  → node_id=16576  coords=(20.000,7.556)
+  read bnode[498]: file_id=16697  → node_id=16697  coords=(20.000,7.611)
+  read bnode[499]: file_id=16818  → node_id=16818  coords=(20.000,7.667)
+  read bnode[500]: file_id=16939  → node_id=16939  coords=(20.000,7.722)
+  read bnode[501]: file_id=17060  → node_id=17060  coords=(20.000,7.778)
+  read bnode[502]: file_id=17181  → node_id=17181  coords=(20.000,7.833)
+  read bnode[503]: file_id=17302  → node_id=17302  coords=(20.000,7.889)
+  read bnode[504]: file_id=17423  → node_id=17423  coords=(20.000,7.944)
+  read bnode[505]: file_id=17544  → node_id=17544  coords=(20.000,8.000)
+  read bnode[506]: file_id=17665  → node_id=17665  coords=(20.000,8.056)
+  read bnode[507]: file_id=17786  → node_id=17786  coords=(20.000,8.111)
+  read bnode[508]: file_id=17907  → node_id=17907  coords=(20.000,8.167)
+  read bnode[509]: file_id=18028  → node_id=18028  coords=(20.000,8.222)
+  read bnode[510]: file_id=18149  → node_id=18149  coords=(20.000,8.278)
+  read bnode[511]: file_id=18270  → node_id=18270  coords=(20.000,8.333)
+  read bnode[512]: file_id=18391  → node_id=18391  coords=(20.000,8.389)
+  read bnode[513]: file_id=18512  → node_id=18512  coords=(20.000,8.444)
+  read bnode[514]: file_id=18633  → node_id=18633  coords=(20.000,8.500)
+  read bnode[515]: file_id=18754  → node_id=18754  coords=(20.000,8.556)
+  read bnode[516]: file_id=18875  → node_id=18875  coords=(20.000,8.611)
+  read bnode[517]: file_id=18996  → node_id=18996  coords=(20.000,8.667)
+  read bnode[518]: file_id=19117  → node_id=19117  coords=(20.000,8.722)
+  read bnode[519]: file_id=19238  → node_id=19238  coords=(20.000,8.778)
+  read bnode[520]: file_id=19359  → node_id=19359  coords=(20.000,8.833)
+  read bnode[521]: file_id=19480  → node_id=19480  coords=(20.000,8.889)
+  read bnode[522]: file_id=19601  → node_id=19601  coords=(20.000,8.944)
+  read bnode[523]: file_id=19722  → node_id=19722  coords=(20.000,9.000)
+  read bnode[524]: file_id=19843  → node_id=19843  coords=(20.000,9.056)
+  read bnode[525]: file_id=19964  → node_id=19964  coords=(20.000,9.111)
+  read bnode[526]: file_id=20085  → node_id=20085  coords=(20.000,9.167)
+  read bnode[527]: file_id=20206  → node_id=20206  coords=(20.000,9.222)
+  read bnode[528]: file_id=20327  → node_id=20327  coords=(20.000,9.278)
+  read bnode[529]: file_id=20448  → node_id=20448  coords=(20.000,9.333)
+  read bnode[530]: file_id=20569  → node_id=20569  coords=(20.000,9.389)
+  read bnode[531]: file_id=20690  → node_id=20690  coords=(20.000,9.444)
+  read bnode[532]: file_id=20811  → node_id=20811  coords=(20.000,9.500)
+  read bnode[533]: file_id=20932  → node_id=20932  coords=(20.000,9.556)
+  read bnode[534]: file_id=21053  → node_id=21053  coords=(20.000,9.611)
+  read bnode[535]: file_id=21174  → node_id=21174  coords=(20.000,9.667)
+  read bnode[536]: file_id=21295  → node_id=21295  coords=(20.000,9.722)
+  read bnode[537]: file_id=21416  → node_id=21416  coords=(20.000,9.778)
+  read bnode[538]: file_id=21537  → node_id=21537  coords=(20.000,9.833)
+  read bnode[539]: file_id=21658  → node_id=21658  coords=(20.000,9.889)
+  read bnode[540]: file_id=21779  → node_id=21779  coords=(20.000,9.944)
+  read bnode[541]: file_id=21900  → node_id=21900  coords=(20.000,10.000)
+  read bnode[542]: file_id=22021  → node_id=22021  coords=(20.000,10.056)
+  read bnode[543]: file_id=22142  → node_id=22142  coords=(20.000,10.111)
+  read bnode[544]: file_id=22263  → node_id=22263  coords=(20.000,10.167)
+  read bnode[545]: file_id=22384  → node_id=22384  coords=(20.000,10.222)
+  read bnode[546]: file_id=22505  → node_id=22505  coords=(20.000,10.278)
+  read bnode[547]: file_id=22626  → node_id=22626  coords=(20.000,10.333)
+  read bnode[548]: file_id=22747  → node_id=22747  coords=(20.000,10.389)
+  read bnode[549]: file_id=22868  → node_id=22868  coords=(20.000,10.444)
+  read bnode[550]: file_id=22989  → node_id=22989  coords=(20.000,10.500)
+  read bnode[551]: file_id=23110  → node_id=23110  coords=(20.000,10.556)
+  read bnode[552]: file_id=23231  → node_id=23231  coords=(20.000,10.611)
+  read bnode[553]: file_id=23352  → node_id=23352  coords=(20.000,10.667)
+  read bnode[554]: file_id=23473  → node_id=23473  coords=(20.000,10.722)
+  read bnode[555]: file_id=23594  → node_id=23594  coords=(20.000,10.778)
+  read bnode[556]: file_id=23715  → node_id=23715  coords=(20.000,10.833)
+  read bnode[557]: file_id=23836  → node_id=23836  coords=(20.000,10.889)
+  read bnode[558]: file_id=23957  → node_id=23957  coords=(20.000,10.944)
+  read bnode[559]: file_id=24078  → node_id=24078  coords=(20.000,11.000)
+  read bnode[560]: file_id=24199  → node_id=24199  coords=(20.000,11.056)
+  read bnode[561]: file_id=24320  → node_id=24320  coords=(20.000,11.111)
+  read bnode[562]: file_id=24441  → node_id=24441  coords=(20.000,11.167)
+  read bnode[563]: file_id=24562  → node_id=24562  coords=(20.000,11.222)
+  read bnode[564]: file_id=24683  → node_id=24683  coords=(20.000,11.278)
+  read bnode[565]: file_id=24804  → node_id=24804  coords=(20.000,11.333)
+  read bnode[566]: file_id=24925  → node_id=24925  coords=(20.000,11.389)
+  read bnode[567]: file_id=25046  → node_id=25046  coords=(20.000,11.444)
+  read bnode[568]: file_id=25167  → node_id=25167  coords=(20.000,11.500)
+  read bnode[569]: file_id=25288  → node_id=25288  coords=(20.000,11.556)
+  read bnode[570]: file_id=25409  → node_id=25409  coords=(20.000,11.611)
+  read bnode[571]: file_id=25530  → node_id=25530  coords=(20.000,11.667)
+  read bnode[572]: file_id=25651  → node_id=25651  coords=(20.000,11.722)
+  read bnode[573]: file_id=25772  → node_id=25772  coords=(20.000,11.778)
+  read bnode[574]: file_id=25893  → node_id=25893  coords=(20.000,11.833)
+  read bnode[575]: file_id=26014  → node_id=26014  coords=(20.000,11.889)
+  read bnode[576]: file_id=26135  → node_id=26135  coords=(20.000,11.944)
+  read bnode[577]: file_id=26256  → node_id=26256  coords=(20.000,12.000)
+  read bnode[578]: file_id=26377  → node_id=26377  coords=(20.000,12.056)
+  read bnode[579]: file_id=26498  → node_id=26498  coords=(20.000,12.111)
+  read bnode[580]: file_id=26619  → node_id=26619  coords=(20.000,12.167)
+  read bnode[581]: file_id=26740  → node_id=26740  coords=(20.000,12.222)
+  read bnode[582]: file_id=26861  → node_id=26861  coords=(20.000,12.278)
+  read bnode[583]: file_id=26982  → node_id=26982  coords=(20.000,12.333)
+  read bnode[584]: file_id=27103  → node_id=27103  coords=(20.000,12.389)
+  read bnode[585]: file_id=27224  → node_id=27224  coords=(20.000,12.444)
+  read bnode[586]: file_id=27345  → node_id=27345  coords=(20.000,12.500)
+  read bnode[587]: file_id=27466  → node_id=27466  coords=(20.000,12.556)
+  read bnode[588]: file_id=27587  → node_id=27587  coords=(20.000,12.611)
+  read bnode[589]: file_id=27708  → node_id=27708  coords=(20.000,12.667)
+  read bnode[590]: file_id=27829  → node_id=27829  coords=(20.000,12.722)
+  read bnode[591]: file_id=27950  → node_id=27950  coords=(20.000,12.778)
+  read bnode[592]: file_id=28071  → node_id=28071  coords=(20.000,12.833)
+  read bnode[593]: file_id=28192  → node_id=28192  coords=(20.000,12.889)
+  read bnode[594]: file_id=28313  → node_id=28313  coords=(20.000,12.944)
+  read bnode[595]: file_id=28434  → node_id=28434  coords=(20.000,13.000)
+  read bnode[596]: file_id=28555  → node_id=28555  coords=(20.000,13.056)
+  read bnode[597]: file_id=28676  → node_id=28676  coords=(20.000,13.111)
+  read bnode[598]: file_id=28797  → node_id=28797  coords=(20.000,13.167)
+  read bnode[599]: file_id=28918  → node_id=28918  coords=(20.000,13.222)
+  read bnode[600]: file_id=29039  → node_id=29039  coords=(20.000,13.278)
+  read bnode[601]: file_id=29160  → node_id=29160  coords=(20.000,13.333)
+  read bnode[602]: file_id=29281  → node_id=29281  coords=(20.000,13.389)
+  read bnode[603]: file_id=29402  → node_id=29402  coords=(20.000,13.444)
+  read bnode[604]: file_id=29523  → node_id=29523  coords=(20.000,13.500)
+  read bnode[605]: file_id=29644  → node_id=29644  coords=(20.000,13.556)
+  read bnode[606]: file_id=29765  → node_id=29765  coords=(20.000,13.611)
+  read bnode[607]: file_id=29886  → node_id=29886  coords=(20.000,13.667)
+  read bnode[608]: file_id=30007  → node_id=30007  coords=(20.000,13.722)
+  read bnode[609]: file_id=30128  → node_id=30128  coords=(20.000,13.778)
+  read bnode[610]: file_id=30249  → node_id=30249  coords=(20.000,13.833)
+  read bnode[611]: file_id=30370  → node_id=30370  coords=(20.000,13.889)
+  read bnode[612]: file_id=30491  → node_id=30491  coords=(20.000,13.944)
+  read bnode[613]: file_id=30612  → node_id=30612  coords=(20.000,14.000)
+  read bnode[614]: file_id=30733  → node_id=30733  coords=(20.000,14.056)
+  read bnode[615]: file_id=30854  → node_id=30854  coords=(20.000,14.111)
+  read bnode[616]: file_id=30975  → node_id=30975  coords=(20.000,14.167)
+  read bnode[617]: file_id=31096  → node_id=31096  coords=(20.000,14.222)
+  read bnode[618]: file_id=31217  → node_id=31217  coords=(20.000,14.278)
+  read bnode[619]: file_id=31338  → node_id=31338  coords=(20.000,14.333)
+  read bnode[620]: file_id=31459  → node_id=31459  coords=(20.000,14.389)
+  read bnode[621]: file_id=31580  → node_id=31580  coords=(20.000,14.444)
+  read bnode[622]: file_id=31701  → node_id=31701  coords=(20.000,14.500)
+  read bnode[623]: file_id=31822  → node_id=31822  coords=(20.000,14.556)
+  read bnode[624]: file_id=31943  → node_id=31943  coords=(20.000,14.611)
+  read bnode[625]: file_id=32064  → node_id=32064  coords=(20.000,14.667)
+  read bnode[626]: file_id=32185  → node_id=32185  coords=(20.000,14.722)
+  read bnode[627]: file_id=32306  → node_id=32306  coords=(20.000,14.778)
+  read bnode[628]: file_id=32427  → node_id=32427  coords=(20.000,14.833)
+  read bnode[629]: file_id=32548  → node_id=32548  coords=(20.000,14.889)
+  read bnode[630]: file_id=32669  → node_id=32669  coords=(20.000,14.944)
+  read bnode[631]: file_id=32790  → node_id=32790  coords=(20.000,15.000)
+  read bnode[632]: file_id=32911  → node_id=32911  coords=(20.000,15.056)
+  read bnode[633]: file_id=33032  → node_id=33032  coords=(20.000,15.111)
+  read bnode[634]: file_id=33153  → node_id=33153  coords=(20.000,15.167)
+  read bnode[635]: file_id=33274  → node_id=33274  coords=(20.000,15.222)
+  read bnode[636]: file_id=33395  → node_id=33395  coords=(20.000,15.278)
+  read bnode[637]: file_id=33516  → node_id=33516  coords=(20.000,15.333)
+  read bnode[638]: file_id=33637  → node_id=33637  coords=(20.000,15.389)
+  read bnode[639]: file_id=33758  → node_id=33758  coords=(20.000,15.444)
+  read bnode[640]: file_id=33879  → node_id=33879  coords=(20.000,15.500)
+  read bnode[641]: file_id=34000  → node_id=34000  coords=(20.000,15.556)
+  read bnode[642]: file_id=34121  → node_id=34121  coords=(20.000,15.611)
+  read bnode[643]: file_id=34242  → node_id=34242  coords=(20.000,15.667)
+  read bnode[644]: file_id=34363  → node_id=34363  coords=(20.000,15.722)
+  read bnode[645]: file_id=34484  → node_id=34484  coords=(20.000,15.778)
+  read bnode[646]: file_id=34605  → node_id=34605  coords=(20.000,15.833)
+  read bnode[647]: file_id=34726  → node_id=34726  coords=(20.000,15.889)
+  read bnode[648]: file_id=34847  → node_id=34847  coords=(20.000,15.944)
+  read bnode[649]: file_id=34968  → node_id=34968  coords=(20.000,16.000)
+  read bnode[650]: file_id=35089  → node_id=35089  coords=(20.000,16.056)
+  read bnode[651]: file_id=35210  → node_id=35210  coords=(20.000,16.111)
+  read bnode[652]: file_id=35331  → node_id=35331  coords=(20.000,16.167)
+  read bnode[653]: file_id=35452  → node_id=35452  coords=(20.000,16.222)
+  read bnode[654]: file_id=35573  → node_id=35573  coords=(20.000,16.278)
+  read bnode[655]: file_id=35694  → node_id=35694  coords=(20.000,16.333)
+  read bnode[656]: file_id=35815  → node_id=35815  coords=(20.000,16.389)
+  read bnode[657]: file_id=35936  → node_id=35936  coords=(20.000,16.444)
+  read bnode[658]: file_id=36057  → node_id=36057  coords=(20.000,16.500)
+  read bnode[659]: file_id=36178  → node_id=36178  coords=(20.000,16.556)
+  read bnode[660]: file_id=36299  → node_id=36299  coords=(20.000,16.611)
+  read bnode[661]: file_id=36420  → node_id=36420  coords=(20.000,16.667)
+  read bnode[662]: file_id=36541  → node_id=36541  coords=(20.000,16.722)
+  read bnode[663]: file_id=36662  → node_id=36662  coords=(20.000,16.778)
+  read bnode[664]: file_id=36783  → node_id=36783  coords=(20.000,16.833)
+  read bnode[665]: file_id=36904  → node_id=36904  coords=(20.000,16.889)
+  read bnode[666]: file_id=37025  → node_id=37025  coords=(20.000,16.944)
+  read bnode[667]: file_id=37146  → node_id=37146  coords=(20.000,17.000)
+  read bnode[668]: file_id=37267  → node_id=37267  coords=(20.000,17.056)
+  read bnode[669]: file_id=37388  → node_id=37388  coords=(20.000,17.111)
+  read bnode[670]: file_id=37509  → node_id=37509  coords=(20.000,17.167)
+  read bnode[671]: file_id=37630  → node_id=37630  coords=(20.000,17.222)
+  read bnode[672]: file_id=37751  → node_id=37751  coords=(20.000,17.278)
+  read bnode[673]: file_id=37872  → node_id=37872  coords=(20.000,17.333)
+  read bnode[674]: file_id=37993  → node_id=37993  coords=(20.000,17.389)
+  read bnode[675]: file_id=38114  → node_id=38114  coords=(20.000,17.444)
+  read bnode[676]: file_id=38235  → node_id=38235  coords=(20.000,17.500)
+  read bnode[677]: file_id=38356  → node_id=38356  coords=(20.000,17.556)
+  read bnode[678]: file_id=38477  → node_id=38477  coords=(20.000,17.611)
+  read bnode[679]: file_id=38598  → node_id=38598  coords=(20.000,17.667)
+  read bnode[680]: file_id=38719  → node_id=38719  coords=(20.000,17.722)
+  read bnode[681]: file_id=38840  → node_id=38840  coords=(20.000,17.778)
+  read bnode[682]: file_id=38961  → node_id=38961  coords=(20.000,17.833)
+  read bnode[683]: file_id=39082  → node_id=39082  coords=(20.000,17.889)
+  read bnode[684]: file_id=39203  → node_id=39203  coords=(20.000,17.944)
+  read bnode[685]: file_id=39324  → node_id=39324  coords=(20.000,18.000)
+  read bnode[686]: file_id=39445  → node_id=39445  coords=(20.000,18.056)
+  read bnode[687]: file_id=39566  → node_id=39566  coords=(20.000,18.111)
+  read bnode[688]: file_id=39687  → node_id=39687  coords=(20.000,18.167)
+  read bnode[689]: file_id=39808  → node_id=39808  coords=(20.000,18.222)
+  read bnode[690]: file_id=39929  → node_id=39929  coords=(20.000,18.278)
+  read bnode[691]: file_id=40050  → node_id=40050  coords=(20.000,18.333)
+  read bnode[692]: file_id=40171  → node_id=40171  coords=(20.000,18.389)
+  read bnode[693]: file_id=40292  → node_id=40292  coords=(20.000,18.444)
+  read bnode[694]: file_id=40413  → node_id=40413  coords=(20.000,18.500)
+  read bnode[695]: file_id=40534  → node_id=40534  coords=(20.000,18.556)
+  read bnode[696]: file_id=40655  → node_id=40655  coords=(20.000,18.611)
+  read bnode[697]: file_id=40776  → node_id=40776  coords=(20.000,18.667)
+  read bnode[698]: file_id=40897  → node_id=40897  coords=(20.000,18.722)
+  read bnode[699]: file_id=41018  → node_id=41018  coords=(20.000,18.778)
+  read bnode[700]: file_id=41139  → node_id=41139  coords=(20.000,18.833)
+  read bnode[701]: file_id=41260  → node_id=41260  coords=(20.000,18.889)
+  read bnode[702]: file_id=41381  → node_id=41381  coords=(20.000,18.944)
+  read bnode[703]: file_id=41502  → node_id=41502  coords=(20.000,19.000)
+  read bnode[704]: file_id=41623  → node_id=41623  coords=(20.000,19.056)
+  read bnode[705]: file_id=41744  → node_id=41744  coords=(20.000,19.111)
+  read bnode[706]: file_id=41865  → node_id=41865  coords=(20.000,19.167)
+  read bnode[707]: file_id=41986  → node_id=41986  coords=(20.000,19.222)
+  read bnode[708]: file_id=42107  → node_id=42107  coords=(20.000,19.278)
+  read bnode[709]: file_id=42228  → node_id=42228  coords=(20.000,19.333)
+  read bnode[710]: file_id=42349  → node_id=42349  coords=(20.000,19.389)
+  read bnode[711]: file_id=42470  → node_id=42470  coords=(20.000,19.444)
+  read bnode[712]: file_id=42591  → node_id=42591  coords=(20.000,19.500)
+  read bnode[713]: file_id=42712  → node_id=42712  coords=(20.000,19.556)
+  read bnode[714]: file_id=42833  → node_id=42833  coords=(20.000,19.611)
+  read bnode[715]: file_id=42954  → node_id=42954  coords=(20.000,19.667)
+  read bnode[716]: file_id=43075  → node_id=43075  coords=(20.000,19.722)
+  read bnode[717]: file_id=43196  → node_id=43196  coords=(20.000,19.778)
+  read bnode[718]: file_id=43317  → node_id=43317  coords=(20.000,19.833)
+  read bnode[719]: file_id=43438  → node_id=43438  coords=(20.000,19.889)
+  read bnode[720]: file_id=43559  → node_id=43559  coords=(20.000,19.944)
+  read bnode[721]: file_id=43680  → node_id=43680  coords=(20.000,20.000)
+Boundary elems: nbelem=480
+Read layer_map.dat for 10800 elements
+Read layer_def.dat: 1 layers
+Mesh input complete: ngnodes=43681, nelem=10800
+Global DOFs: nglobal=174724
+Assembling global system...
+Initializing node overlay for annular domain...
+Setting up node overlay for annular domain...
+  Tolerance: tol_x=3.333333e-02, tol_y=1.111111e-02
+  Domain bounds from dat: x=[0.000000, 20.000000], y=[0.000000, 20.000000]
+  Actual domain: x=[0.000000, 20.000000], y=[0.000000, 20.000000]
+  Overlay: top node 43560 (x=0.000000,y=20.000000) → bottom node 0 (x=0.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43561 (x=0.166667,y=20.000000) → bottom node 1 (x=0.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43562 (x=0.333333,y=20.000000) → bottom node 2 (x=0.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43563 (x=0.500000,y=20.000000) → bottom node 3 (x=0.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43564 (x=0.666667,y=20.000000) → bottom node 4 (x=0.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43565 (x=0.833333,y=20.000000) → bottom node 5 (x=0.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43566 (x=1.000000,y=20.000000) → bottom node 6 (x=1.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43567 (x=1.166667,y=20.000000) → bottom node 7 (x=1.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43568 (x=1.333333,y=20.000000) → bottom node 8 (x=1.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43569 (x=1.500000,y=20.000000) → bottom node 9 (x=1.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43570 (x=1.666667,y=20.000000) → bottom node 10 (x=1.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43571 (x=1.833333,y=20.000000) → bottom node 11 (x=1.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43572 (x=2.000000,y=20.000000) → bottom node 12 (x=2.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43573 (x=2.166667,y=20.000000) → bottom node 13 (x=2.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43574 (x=2.333333,y=20.000000) → bottom node 14 (x=2.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43575 (x=2.500000,y=20.000000) → bottom node 15 (x=2.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43576 (x=2.666667,y=20.000000) → bottom node 16 (x=2.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43577 (x=2.833333,y=20.000000) → bottom node 17 (x=2.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43578 (x=3.000000,y=20.000000) → bottom node 18 (x=3.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43579 (x=3.166667,y=20.000000) → bottom node 19 (x=3.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43580 (x=3.333333,y=20.000000) → bottom node 20 (x=3.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43581 (x=3.500000,y=20.000000) → bottom node 21 (x=3.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43582 (x=3.666667,y=20.000000) → bottom node 22 (x=3.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43583 (x=3.833333,y=20.000000) → bottom node 23 (x=3.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43584 (x=4.000000,y=20.000000) → bottom node 24 (x=4.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43585 (x=4.166667,y=20.000000) → bottom node 25 (x=4.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43586 (x=4.333333,y=20.000000) → bottom node 26 (x=4.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43587 (x=4.500000,y=20.000000) → bottom node 27 (x=4.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43588 (x=4.666667,y=20.000000) → bottom node 28 (x=4.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43589 (x=4.833333,y=20.000000) → bottom node 29 (x=4.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43590 (x=5.000000,y=20.000000) → bottom node 30 (x=5.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43591 (x=5.166667,y=20.000000) → bottom node 31 (x=5.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43592 (x=5.333333,y=20.000000) → bottom node 32 (x=5.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43593 (x=5.500000,y=20.000000) → bottom node 33 (x=5.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43594 (x=5.666667,y=20.000000) → bottom node 34 (x=5.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43595 (x=5.833333,y=20.000000) → bottom node 35 (x=5.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43596 (x=6.000000,y=20.000000) → bottom node 36 (x=6.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43597 (x=6.166667,y=20.000000) → bottom node 37 (x=6.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43598 (x=6.333333,y=20.000000) → bottom node 38 (x=6.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43599 (x=6.500000,y=20.000000) → bottom node 39 (x=6.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43600 (x=6.666667,y=20.000000) → bottom node 40 (x=6.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43601 (x=6.833333,y=20.000000) → bottom node 41 (x=6.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43602 (x=7.000000,y=20.000000) → bottom node 42 (x=7.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43603 (x=7.166667,y=20.000000) → bottom node 43 (x=7.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43604 (x=7.333333,y=20.000000) → bottom node 44 (x=7.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43605 (x=7.500000,y=20.000000) → bottom node 45 (x=7.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43606 (x=7.666667,y=20.000000) → bottom node 46 (x=7.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43607 (x=7.833333,y=20.000000) → bottom node 47 (x=7.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43608 (x=8.000000,y=20.000000) → bottom node 48 (x=8.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43609 (x=8.166667,y=20.000000) → bottom node 49 (x=8.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43610 (x=8.333333,y=20.000000) → bottom node 50 (x=8.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43611 (x=8.500000,y=20.000000) → bottom node 51 (x=8.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43612 (x=8.666667,y=20.000000) → bottom node 52 (x=8.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43613 (x=8.833333,y=20.000000) → bottom node 53 (x=8.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43614 (x=9.000000,y=20.000000) → bottom node 54 (x=9.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43615 (x=9.166667,y=20.000000) → bottom node 55 (x=9.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43616 (x=9.333333,y=20.000000) → bottom node 56 (x=9.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43617 (x=9.500000,y=20.000000) → bottom node 57 (x=9.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43618 (x=9.666667,y=20.000000) → bottom node 58 (x=9.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43619 (x=9.833333,y=20.000000) → bottom node 59 (x=9.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43620 (x=10.000000,y=20.000000) → bottom node 60 (x=10.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43621 (x=10.166667,y=20.000000) → bottom node 61 (x=10.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43622 (x=10.333333,y=20.000000) → bottom node 62 (x=10.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43623 (x=10.500000,y=20.000000) → bottom node 63 (x=10.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43624 (x=10.666667,y=20.000000) → bottom node 64 (x=10.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43625 (x=10.833333,y=20.000000) → bottom node 65 (x=10.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43626 (x=11.000000,y=20.000000) → bottom node 66 (x=11.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43627 (x=11.166667,y=20.000000) → bottom node 67 (x=11.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43628 (x=11.333333,y=20.000000) → bottom node 68 (x=11.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43629 (x=11.500000,y=20.000000) → bottom node 69 (x=11.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43630 (x=11.666667,y=20.000000) → bottom node 70 (x=11.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43631 (x=11.833333,y=20.000000) → bottom node 71 (x=11.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43632 (x=12.000000,y=20.000000) → bottom node 72 (x=12.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43633 (x=12.166667,y=20.000000) → bottom node 73 (x=12.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43634 (x=12.333333,y=20.000000) → bottom node 74 (x=12.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43635 (x=12.500000,y=20.000000) → bottom node 75 (x=12.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43636 (x=12.666667,y=20.000000) → bottom node 76 (x=12.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43637 (x=12.833333,y=20.000000) → bottom node 77 (x=12.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43638 (x=13.000000,y=20.000000) → bottom node 78 (x=13.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43639 (x=13.166667,y=20.000000) → bottom node 79 (x=13.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43640 (x=13.333333,y=20.000000) → bottom node 80 (x=13.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43641 (x=13.500000,y=20.000000) → bottom node 81 (x=13.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43642 (x=13.666667,y=20.000000) → bottom node 82 (x=13.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43643 (x=13.833333,y=20.000000) → bottom node 83 (x=13.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43644 (x=14.000000,y=20.000000) → bottom node 84 (x=14.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43645 (x=14.166667,y=20.000000) → bottom node 85 (x=14.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43646 (x=14.333333,y=20.000000) → bottom node 86 (x=14.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43647 (x=14.500000,y=20.000000) → bottom node 87 (x=14.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43648 (x=14.666667,y=20.000000) → bottom node 88 (x=14.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43649 (x=14.833333,y=20.000000) → bottom node 89 (x=14.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43650 (x=15.000000,y=20.000000) → bottom node 90 (x=15.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43651 (x=15.166667,y=20.000000) → bottom node 91 (x=15.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43652 (x=15.333333,y=20.000000) → bottom node 92 (x=15.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43653 (x=15.500000,y=20.000000) → bottom node 93 (x=15.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43654 (x=15.666667,y=20.000000) → bottom node 94 (x=15.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43655 (x=15.833333,y=20.000000) → bottom node 95 (x=15.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43656 (x=16.000000,y=20.000000) → bottom node 96 (x=16.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43657 (x=16.166667,y=20.000000) → bottom node 97 (x=16.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43658 (x=16.333333,y=20.000000) → bottom node 98 (x=16.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43659 (x=16.500000,y=20.000000) → bottom node 99 (x=16.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43660 (x=16.666667,y=20.000000) → bottom node 100 (x=16.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43661 (x=16.833333,y=20.000000) → bottom node 101 (x=16.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43662 (x=17.000000,y=20.000000) → bottom node 102 (x=17.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43663 (x=17.166667,y=20.000000) → bottom node 103 (x=17.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43664 (x=17.333333,y=20.000000) → bottom node 104 (x=17.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43665 (x=17.500000,y=20.000000) → bottom node 105 (x=17.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43666 (x=17.666667,y=20.000000) → bottom node 106 (x=17.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43667 (x=17.833333,y=20.000000) → bottom node 107 (x=17.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43668 (x=18.000000,y=20.000000) → bottom node 108 (x=18.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43669 (x=18.166667,y=20.000000) → bottom node 109 (x=18.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43670 (x=18.333333,y=20.000000) → bottom node 110 (x=18.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43671 (x=18.500000,y=20.000000) → bottom node 111 (x=18.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43672 (x=18.666667,y=20.000000) → bottom node 112 (x=18.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43673 (x=18.833333,y=20.000000) → bottom node 113 (x=18.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43674 (x=19.000000,y=20.000000) → bottom node 114 (x=19.000000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43675 (x=19.166667,y=20.000000) → bottom node 115 (x=19.166667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43676 (x=19.333333,y=20.000000) → bottom node 116 (x=19.333333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43677 (x=19.500000,y=20.000000) → bottom node 117 (x=19.500000,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43678 (x=19.666667,y=20.000000) → bottom node 118 (x=19.666667,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43679 (x=19.833333,y=20.000000) → bottom node 119 (x=19.833333,y=0.000000) diff=0.000000e+00 
+  Overlay: top node 43680 (x=20.000000,y=20.000000) → bottom node 120 (x=20.000000,y=0.000000) diff=0.000000e+00 
+Node overlay complete: 121 nodes overlaid (of 121 top-edge candidates)
+Assembling elements 0 to 10799 on rank 0...
+DEBUG: ie=0 gp=0 r_phys=0.0056 Sr=0.5000 Stheta=0.3142 Wr=0.0035 Wtheta=282.8144 detJ=0.0093
+Inserting placeholder diagonals for overlaid DOFs...
+Inserted 484 placeholder diagonals
+First assembly (committing element contributions)...
+Found 484 overlaid DOFs to constrain
+Applying periodic constraints...
+Applied 484 periodic constraints
+Assembly complete (final)
+Assembly complete
+Applying boundary conditions...
+  Domain bounds: x=[0.000000, 20.000000], y=[0.000000, 20.000000]
+Boundary node distribution:
+  Inner (x~0.00): 361 nodes
+  Outer (x~20.00): 361 nodes
+  Bottom (y~0.00): 2 nodes
+  Top (y~20.00): 2 nodes
+  Total boundary nodes: 722
+Applying boundary conditions...
+  BC #1: node=120, (x=20.000,y=0.000) -> u=0.000000 (gdof=480)
+  BC #2: node=241, (x=20.000,y=0.056) -> u=0.871557 (gdof=964)
+  BC #3: node=362, (x=20.000,y=0.111) -> u=1.736482 (gdof=1448)
+  BC #4: node=483, (x=20.000,y=0.167) -> u=2.588190 (gdof=1932)
+  BC #5: node=604, (x=20.000,y=0.222) -> u=3.420201 (gdof=2416)
+
+Boundary condition summary:
+  Inner radius (floating BC): 361 nodes
+  Outer radius (Dirichlet BC): 361 nodes
+  Theta boundaries (periodic, skipped): 0 nodes
+  Total Dirichlet BCs applied: 361
+
+Boundary conditions applied successfully
+BCs applied
+Solving system...
+Checking assembly: ||A||_∞ = 2511.64, ||b||_∞ = 10.
+Solving system...
+>>> KSP convergence:
+    Reason:     2 (CONVERGED)
+    Iterations: 195
+    Residual:   2.261298e-08
+Copying solution to overlaid DOFs...
+Copied solution to 484 overlaid DOFs
+||A x - b||_∞ = 4.27961e-08
+Wrote reconstructed solution to ../output/solution_recon.dat
+Solve + postprocess done
+===========================================
+Total time: 1.07 mins
+===========================================
+Memory cleanup complete

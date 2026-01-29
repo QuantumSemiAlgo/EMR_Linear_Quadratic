@@ -1,0 +1,9 @@
+output/
+*.o
+*.pyc
+__pycache__
+.git
+.DS_Store
+.vscode
+.idea
+build/
