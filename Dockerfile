@@ -43,11 +43,11 @@ COPY src /app/src
 WORKDIR /app/src
 
 # Build the application
-# We override variables to ensure they use the container's paths if needed, 
-# though Env vars should handle it.
-RUN make clean && make all
+# We override variables to ensure they use the container's paths if needed
+# Disable ASAN for production Docker image to avoid runtime issues and improve performance
+RUN make clean && make all ASAN_FLAGS=""
 
-# Command to run by default. 
+# Command to run by default.
 # We'll default to running the simulation and then the visualizer.
 # Using a shell script to chain commands is often cleaner.
-CMD ["/bin/bash", "-c", "./Laplace && python3 visualize_mesh.py ../mesh"]
+CMD ["/bin/bash", "-c", "./Laplace FEMstruct2d.inp && python3 visualize_mesh.py ../mesh"]

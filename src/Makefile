@@ -22,7 +22,7 @@ BINARY_NAME  = Laplace
 LDFLAGS      = -L$(PETSC_DIR)/lib \
                -L$(SLEPC_DIR)/lib \
                -lslepc -lpetsc \
-               -fsanitize=address
+               $(ASAN_FLAGS)
 
 # =================== Targets ===================
 all: $(BINARY_NAME)
