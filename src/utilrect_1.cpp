@@ -488,15 +488,15 @@ void deriv1Q2(double dNdxi[9], double dNdeta[9], double xi, double eta) {
 // HERMITE ELEMENTS (Cubic)
 // =============================================================================
 // 1D Hermite basis functions on [0,1]
-static inline double h00(double t) { return 2 * t * t * t - 3 * t * t + 1; }
-static inline double h10(double t) { return t * t * t - 2 * t * t + t; }
-static inline double h01(double t) { return -2 * t * t * t + 3 * t * t; }
-static inline double h11(double t) { return t * t * t - t * t; }
+// static inline double h00(double t) { return 2 * t * t * t - 3 * t * t + 1; }
+// static inline double h10(double t) { return t * t * t - 2 * t * t + t; }
+// static inline double h01(double t) { return -2 * t * t * t + 3 * t * t; }
+// static inline double h11(double t) { return t * t * t - t * t; }
 
-static inline double dh00(double t) { return 6 * t * t - 6 * t; }
-static inline double dh10(double t) { return 3 * t * t - 4 * t + 1; }
-static inline double dh01(double t) { return -6 * t * t + 6 * t; }
-static inline double dh11(double t) { return 3 * t * t - 2 * t; }
+// static inline double dh00(double t) { return 6 * t * t - 6 * t; }
+// static inline double dh10(double t) { return 3 * t * t - 4 * t + 1; }
+// static inline double dh01(double t) { return -6 * t * t + 6 * t; }
+// static inline double dh11(double t) { return 3 * t * t - 2 * t; }
 
 void shapeHermiteCubic(double N[16], double xi, double eta) {
   // Map [-1,1] -> [0,1]

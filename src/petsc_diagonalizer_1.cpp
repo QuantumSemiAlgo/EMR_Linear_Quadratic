@@ -191,8 +191,114 @@ PetscErrorCode petsc_diagonalizer(global_matrices &gmat, data &dat) {
   CHKERRQ(ierr);
 
   // Call the solution output function (interpolates to grid)
-  ierr = solution(gmat, dat, tx);
-  CHKERRQ(ierr);
+  // ierr = solution(gmat, dat, tx);
+  // CHKERRQ(ierr);
+
+  // -------------------------------------------------------------------------
+  // 9. EMR Post-Processing (Resistance Calculation)
+  // -------------------------------------------------------------------------
+  if (dat.Nsample_R2 > 0) { // EMR Mode Check
+    PetscScalar *sol_array;
+    ierr = VecGetArray(tx, &sol_array);
+    CHKERRQ(ierr);
+
+    int port4_nodes = 0;
+    double v4_sum = 0.0;
+
+    // Calculate Average Voltage on Port 4 (Probe)
+    // Rank 0 has the full solution 'tx' due to scatter above
+    int rank;
+    MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+
+    if (rank == 0) {
+      for (int i = 0; i < dat.ngnodes; ++i) {
+        if (dat.port_code[i] == 4) {
+          v4_sum += PetscRealPart(sol_array[i]);
+          port4_nodes++;
+        }
+      }
+
+      double v4_avg = 0.0;
+      if (port4_nodes > 0)
+        v4_avg = v4_sum / port4_nodes;
+
+      double Resistance = 0.0;
+      if (dat.Io != 0.0) {
+        // Resistance (Ohms) = (Volt / Amps)
+        // Note: Stiffness matrix already includes dat.t, so V is already scaled
+        // correctly.
+        Resistance = (v4_avg / dat.Io);
+      }
+      dat.latest_resistance = Resistance;
+
+      // ============================================================================
+      // DIAGNOSTIC OUTPUT - Resistance Calculation
+      // ============================================================================
+      {
+        double V4_volts = v4_avg;
+        double V3_volts = 0.0; // Port 3 is reference (0V)
+        double I_amps = dat.Io;
+        double R_val = Resistance;
+
+        ierr = PetscPrintf(PETSC_COMM_WORLD,
+                           "\n"
+                           "───────────────────────────────────────────────────"
+                           "───────────────\n"
+                           "RESISTANCE CALCULATION DETAILS:\n"
+                           "───────────────────────────────────────────────────"
+                           "───────────────\n"
+                           "  Voltage at Port 4 (avg): V4 = %.12e V\n"
+                           "  Voltage at Port 3 (ref): V3 = %.12e V\n"
+                           "  Voltage difference:     ΔV = %.12e V\n"
+                           "  Input current:          Io = %.12e A\n"
+                           "  Resistance:         R(H=%.2f) = %.12e Ω\n"
+                           "  Reference resistance:   Ro = %.12e Ω\n",
+                           V4_volts, V3_volts, V4_volts - V3_volts, I_amps,
+                           dat.H_current, R_val, dat.Ro);
+        CHKERRQ(ierr);
+
+        if (dat.Ro > 0) {
+          double EMR_percent = 100.0 * (R_val - dat.Ro) / dat.Ro;
+          ierr = PetscPrintf(PETSC_COMM_WORLD,
+                             "  EMR:                    = %.6f %%\n"
+                             "  Resistance ratio:       R(H)/R(0) = %.6f\n"
+                             "─────────────────────────────────────────────────"
+                             "─────────────────\n"
+                             "\n",
+                             EMR_percent, R_val / dat.Ro);
+          CHKERRQ(ierr);
+        }
+      }
+      // ============================================================================
+
+      // Compute EMR Ratio (needs R0 from previous run or calc on fly)
+      // Usually we just output R(H) and process later.
+      // BUT simple EMR% = 100 * (R(H) - R(0)) / R(0).
+      // We don't have R(0) stored here easily across calls unless we pass it.
+      // Let's just write R(H) to file.
+
+      /*
+      // FILE WRITING MOVED TO main.cpp TO ENSURE R0 CONSISTENCY
+      FILE *fp = fopen("EMRdata.out", "a");
+      if (fp) {
+        // Header if new file? (Ideally handle in main, but safe to append)
+        // Format: H  R(H)  R2  ...
+        fprintf(fp, "%.6e  %.8e  %.6e  %.6e  %.6e\n", dat.H_current, Resistance,
+                dat.R2, dat.sigma1, dat.sigma2);
+        fclose(fp);
+      } else {
+        PetscPrintf(PETSC_COMM_WORLD, "Error opening EMRdata.out for append\n");
+      }
+      */
+
+      PetscPrintf(PETSC_COMM_WORLD,
+                  "  >> EMR Calculation: H=%.4g T, V4_avg=%.6g V, R=%.8g Ohm\n",
+                  dat.H_current, v4_avg, Resistance);
+    }
+
+    ierr = VecRestoreArray(tx, &sol_array);
+    CHKERRQ(ierr);
+  }
 
   // Clean up
   ierr = KSPDestroy(&ksp);

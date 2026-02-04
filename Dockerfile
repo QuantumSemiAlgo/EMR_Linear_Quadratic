@@ -47,7 +47,9 @@ WORKDIR /app/src
 # Disable ASAN for production Docker image to avoid runtime issues and improve performance
 RUN make clean && make all ASAN_FLAGS=""
 
+# Ensure scripts are executable
+RUN chmod +x run_emr_sweep.sh
+
 # Command to run by default.
-# We'll default to running the simulation and then the visualizer.
-# Using a shell script to chain commands is often cleaner.
-CMD ["/bin/bash", "-c", "./Laplace FEMstruct2d.inp && python3 visualize_mesh.py ../mesh"]
+# Execute the full EMR simulation sweep and plotting pipeline
+CMD ["/bin/bash", "-c", "./run_emr_sweep.sh && python3 plot_emr_vs_h.py"]

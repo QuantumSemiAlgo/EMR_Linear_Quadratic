@@ -35,410 +35,365 @@
 // -----------------------------------------------------------------------------
 // This string is displayed when the user runs the program with the -help
 // option. It provides a brief description of the program's purpose.
-static char help[] = "Parallel FEM for 2D Laplace on rectangular mesh\n\n";
+// -----------------------------------------------------------------------------
+// Global Help Message
+// -----------------------------------------------------------------------------
+static char help[] = "Parallel FEM for 2D Laplace / EMR Simulation\n\n";
 
-/**
- * @brief Main function of the FEM solver.
- *
- * @param argc Argument count.
- * @param argv Argument vector. argv[1] is expected to be the input file path.
- * @return int Exit status (EXIT_SUCCESS or EXIT_FAILURE).
- */
-int main(int argc, char **argv) {
-  // ---------------------------------------------------------------------------
-  // Variable Declarations
-  // ---------------------------------------------------------------------------
-  // ierr: Used to capture and check the return codes of PETSc functions.
+// Helper to free dynamic mesh memory
+void FreeMesh(data &dat) {
+  if (dat.Convertnode) {
+    delete[] dat.Convertnode;
+    dat.Convertnode = nullptr;
+  }
+  if (dat.bnode_id) {
+    delete[] dat.bnode_id;
+    dat.bnode_id = nullptr;
+  }
+  if (dat.node) {
+    for (int i = 0; i < dat.ngnodes; ++i)
+      delete[] dat.node[i];
+    delete[] dat.node;
+    dat.node = nullptr;
+  }
+  if (dat.elem) {
+    for (int i = 0; i < dat.nelem; ++i)
+      delete[] dat.elem[i];
+    delete[] dat.elem;
+    dat.elem = nullptr;
+  }
+  if (dat.bnode) {
+    for (int i = 0; i < dat.nbnode; ++i)
+      delete[] dat.bnode[i];
+    delete[] dat.bnode;
+    dat.bnode = nullptr;
+  }
+  if (dat.bvalue) {
+    for (int i = 0; i < dat.nbnode; ++i)
+      delete[] dat.bvalue[i];
+    delete[] dat.bvalue;
+    dat.bvalue = nullptr;
+  }
+  if (dat.port_code) {
+    delete[] dat.port_code;
+    dat.port_code = nullptr;
+  }
+  // Note: material arrays, layer arrays etc might be mesh dependent too.
+  // For safety, clear layer mappings.
+  if (dat.layer_id_for_elem) {
+    delete[] dat.layer_id_for_elem;
+    dat.layer_id_for_elem = nullptr;
+  }
+
+  // Reset counts
+  dat.ngnodes = 0;
+  dat.nelem = 0;
+  dat.nbnode = 0;
+}
+
+// =============================================================================
+// PORT IDENTIFICATION
+// =============================================================================
+PetscErrorCode identify_ports(data &dat) {
   PetscErrorCode ierr;
+  ierr = PetscPrintf(PETSC_COMM_WORLD, "Identifying Ports for EMR BCs...\n");
+  CHKERRQ(ierr);
 
-  // rank: The ID of the current MPI process (0 to size-1).
-  // size: The total number of MPI processes in the communicator.
+  // Allocate port_code
+  if (dat.port_code)
+    delete[] dat.port_code;
+  dat.port_code = new int[dat.ngnodes];
+  for (int i = 0; i < dat.ngnodes; ++i)
+    dat.port_code[i] = 0;
+
+  double w_ang = (10.0 * M_PI / 180.0); // 10 degrees half-width
+  if (dat.width_L1 > 1e-9)
+    w_ang = dat.width_L1 * M_PI; // If read
+
+  // Angles
+  double ang1 = 0.0;
+  double ang2 = M_PI;
+  double ang3 = M_PI / 2.0;
+  double ang4 = 3.0 * M_PI / 2.0;
+
+  if (dat.theta1 > 1e-9 || std::abs(dat.theta1) > 1e-9)
+    ang1 = dat.theta1 * M_PI;
+  if (dat.theta2 > 1e-9)
+    ang2 = dat.theta2 * M_PI;
+  if (dat.theta3 > 1e-9)
+    ang3 = dat.theta3 * M_PI;
+
+  int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
+
+  // Loop nodes
+  // Only check OUTER boundary nodes for ports?
+  // Normally contacts are on periphery.
+  double tol = 1e-5;
+
+  for (int i = 0; i < dat.ngnodes; ++i) {
+    double t = dat.node[i][0]; // theta
+    double r = dat.node[i][1]; // r
+
+    // Normalize t to 0..2pi
+    while (t < 0)
+      t += 2 * M_PI;
+    while (t >= 2 * M_PI)
+      t -= 2 * M_PI;
+
+    // Check if on Outer Boundary
+    if (std::abs(r - dat.Rout) < tol) {
+      // Check angles
+      // Distance in angle
+      // Lambda requires C++11. makefile standard?
+      // Inline logic.
+      auto check_port = [&](double center, int code) {
+        double d = std::abs(t - center);
+        if (d > M_PI)
+          d = 2 * M_PI - d; // Wrap around
+        if (d < w_ang) {
+          dat.port_code[i] = code;
+          return true;
+        }
+        return false;
+      };
+
+      if (check_port(ang1, 1))
+        c1++;
+      else if (check_port(ang2, 2))
+        c2++;
+      else if (check_port(ang3, 3))
+        c3++;
+      else if (check_port(ang4, 4))
+        c4++;
+    }
+  }
+
+  ierr = PetscPrintf(PETSC_COMM_WORLD,
+                     "  Port Nodes identified: P1=%d, P2=%d, P3=%d, P4=%d\n",
+                     c1, c2, c3, c4);
+  CHKERRQ(ierr);
+
+  return 0;
+}
+
+int main(int argc, char **argv) {
+  PetscErrorCode ierr;
   int rank, size;
-
-  // Timers for measuring total execution time.
   std::time_t t0, t1;
 
-  // ---------------------------------------------------------------------------
-  // 1. Initialize PETSc/SLEPc Environment
-  // ---------------------------------------------------------------------------
-  // SlepcInitialize handles the initialization of both SLEPc and PETSc.
-  // It sets up memory management, parses command-line arguments, and
-  // initializes MPI.
   ierr = SlepcInitialize(&argc, &argv, nullptr, help);
   CHKERRQ(ierr);
-
-  // Print a welcome message to the standard output (only from the root
-  // process).
   ierr = PetscPrintf(PETSC_COMM_WORLD, "=== PETSc initialized ===\n");
   CHKERRQ(ierr);
-
-  // ---------------------------------------------------------------------------
-  // 2. MPI Setup
-  // ---------------------------------------------------------------------------
-  // Determine the rank of the current process and the total number of
-  // processes.
   ierr = MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
   CHKERRQ(ierr);
   ierr = MPI_Comm_size(PETSC_COMM_WORLD, &size);
   CHKERRQ(ierr);
 
-  // ---------------------------------------------------------------------------
-  // 3. Input Validation
-  // ---------------------------------------------------------------------------
-  // Ensure that the user has provided an input file argument.
   if (argc < 2) {
-    ierr = PetscPrintf(
-        PETSC_COMM_WORLD,
-        "Error: please provide FEMstruct input file on command line\n");
-    CHKERRQ(ierr);
-    // Finalize PETSc before exiting to ensure proper cleanup.
-    PetscFinalize();
+    PetscPrintf(PETSC_COMM_WORLD,
+                "Error: please provide FEMstruct input file\n");
+    SlepcFinalize();
     return EXIT_FAILURE;
   }
 
-  // ---------------------------------------------------------------------------
-  // 4. Print Execution Banner
-  // ---------------------------------------------------------------------------
-  // Display current time, date, and user information for logging purposes.
-  {
-    std::time_t now = std::time(nullptr);
-    std::tm *ltm = std::localtime(&now);
-
-    char timebuf[32], datebuf[32];
-    std::strftime(timebuf, sizeof(timebuf), "%H:%M:%S", ltm);
-    std::strftime(datebuf, sizeof(datebuf), "%Y-%m-%d", ltm);
-
-    ierr = PetscPrintf(PETSC_COMM_WORLD,
-                       "\n"
-                       "===============================\n"
-                       ":      FEM calculation         :\n"
-                       ":     Laplace Equation         :\n"
-                       ":     Arya Retheeshan          :\n"
-                       ":                              :\n"
-                       ":   Time: %-10s           :\n"
-                       ":   Date: %-10s           :\n"
-                       "===============================\n",
-                       timebuf, datebuf);
-    CHKERRQ(ierr);
-  }
-
-  // Store the input filename.
-  const char *fname = argv[1];
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "Input file: %s\n", fname);
-  CHKERRQ(ierr);
-
-  // Start the execution timer.
   std::time(&t0);
-
-  // ---------------------------------------------------------------------------
-  // 5. Read Configuration Input
-  // ---------------------------------------------------------------------------
-  // Initialize the main data structure 'dat' which holds all simulation
-  // parameters.
   data dat;
   dat.rank = rank;
   dat.size = size;
 
-  // Parse the input file to populate 'dat'.
-  ierr = input_reader(fname, dat);
-  CHKERRQ(ierr);
+  // Initialize pointers to null
+  dat.node = nullptr;
+  dat.elem = nullptr;
+  dat.Convertnode = nullptr;
+  dat.bnode_id = nullptr;
+  dat.bnode = nullptr;
+  dat.bvalue = nullptr;
+  dat.port_code = nullptr;
 
-// Create output directory if it doesn't exist
-#ifdef _WIN32
-  _mkdir(dat.outpath);
-#else
-  mkdir(dat.outpath, 0755);
-#endif
-
-  // LOG CONFIGURATION SUMMARY
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "\n=== Configuration Summary ===\n");
-  CHKERRQ(ierr);
-  ierr = PetscPrintf(PETSC_COMM_WORLD,
-                     "Mesh generation:\n"
-                     "  n_x = %d elements\n"
-                     "  n_y = %d elements\n"
-                     "  auto_generate = %d\n"
-                     "  use_annular = %d\n",
-                     dat.n_x, dat.n_y, dat.auto_generate_mesh, dat.use_annular);
-  CHKERRQ(ierr);
-  ierr = PetscPrintf(PETSC_COMM_WORLD,
-                     "Output grid:\n"
-                     "  ndz_x = %d points\n"
-                     "  ndz_y = %d points\n",
-                     dat.ndz_x, dat.ndz_y);
-  CHKERRQ(ierr);
-  ierr = PetscPrintf(PETSC_COMM_WORLD,
-                     "Element type:\n"
-                     "  node_elem = %d\n"
-                     "  dof_per_node = %d\n",
-                     dat.node_elem, dat.dof_per_node);
-  CHKERRQ(ierr);
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "=============================\n\n");
-  CHKERRQ(ierr);
-
-  // Log key configuration parameters.
-  ierr = PetscPrintf(
-      PETSC_COMM_WORLD,
-      "FEMstruct read: ndz_x=%d, ndz_y=%d, node_elem=%d, dof_per_node=%d\n",
-      dat.ndz_x, dat.ndz_y, dat.node_elem, dat.dof_per_node);
+  ierr = input_reader(argv[1], dat);
   CHKERRQ(ierr);
 
   // ---------------------------------------------------------------------------
-  // 6. Compute Grid Spacings
+  // EMR SWEEP LOGIC
   // ---------------------------------------------------------------------------
-  // Calculate the spatial step sizes (dx, dy) based on domain size and grid
-  // resolution.
-  dat.dzx = (dat.xmax - dat.xmin) / double(dat.ndz_x);
-  dat.dzy = (dat.ymax - dat.ymin) / double(dat.ndz_y);
-
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "Grid spacings: dzx=%.6f, dzy=%.6f\n",
-                     dat.dzx, dat.dzy);
-  CHKERRQ(ierr);
-
-  // ---------------------------------------------------------------------------
-  // 7. Generate Mesh Files (if requested)
-  // ---------------------------------------------------------------------------
-  if (dat.auto_generate_mesh) {
-    // CRITICAL STABILITY FIX:
-    // Only Rank 0 generates the mesh files to prevent race conditions and file
-    // corruption. All other ranks wait at the barrier.
-    if (dat.rank == 0) {
-      ierr = PetscPrintf(PETSC_COMM_WORLD,
-                         "Auto-generating mesh files (Rank 0)...\n");
-      CHKERRQ(ierr);
-
-      // Generate for 4-node elements
-      ierr = generate_mesh(dat, 4);
-      CHKERRQ(ierr);
-
-      // Generate for 9-node elements
-      ierr = generate_mesh(dat, 9);
-      CHKERRQ(ierr);
-
-      ierr = PetscPrintf(PETSC_COMM_WORLD, "Mesh generation complete.\n\n");
-      CHKERRQ(ierr);
-    }
-
-    // Ensure all ranks wait until mesh files are fully written and closed
-    ierr = MPI_Barrier(PETSC_COMM_WORLD);
-    CHKERRQ(ierr);
-  }
-
-  // ---------------------------------------------------------------------------
-  // 7. Read Mesh Data
-  // ---------------------------------------------------------------------------
-  // Load nodes, elements, and boundary definitions from external mesh files.
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "Reading mesh files...\n");
-  CHKERRQ(ierr);
-  ierr = mesh_input(dat);
-  CHKERRQ(ierr);
-
-  ierr = PetscPrintf(PETSC_COMM_WORLD,
-                     "Mesh input complete: ngnodes=%d, nelem=%d\n", dat.ngnodes,
-                     dat.nelem);
-  CHKERRQ(ierr);
-
-  // ---------------------------------------------------------------------------
-  // 8. Compute Global Degrees of Freedom (DOFs)
-  // ---------------------------------------------------------------------------
-  // Total DOFs = Number of Nodes * DOFs per Node.
-  dat.nglobal = dat.ngnodes * dat.dof_per_node;
-
-  ierr =
-      PetscPrintf(PETSC_COMM_WORLD, "Global DOFs: nglobal=%d\n", dat.nglobal);
-  CHKERRQ(ierr);
-
-  // ---------------------------------------------------------------------------
-  // Optional: Hermite Shape Function Testing
-  // ---------------------------------------------------------------------------
-  // This block runs only for specific element types (Hermite Cubic) to verify
-  // shape function derivatives. It serves as a sanity check for the basis
-  // functions.
-  if (dat.node_elem == 4 && dat.dof_per_node == 4 && dat.rank == 0) {
-    PetscPrintf(
-        PETSC_COMM_WORLD,
-        "── Testing Hermite nodal-value partition & derivative sums ──\n");
-
-    double N[16], dNdxi[16], dNdeta[16];
-    double xi_vals[5] = {-1.0, -0.5, 0.0, 0.5, 1.0};
-    double eta_vals[5] = {-1.0, -0.5, 0.0, 0.5, 1.0};
-
-    // Iterate over test points in the reference element (xi, eta).
-    for (int i = 0; i < 5; ++i) {
-      for (int j = 0; j < 5; ++j) {
-        // Evaluate shape functions and derivatives.
-        shapeHermiteCubic(N, xi_vals[i], eta_vals[j]);
-        deriv1HermiteCubic(dNdxi, dNdeta, xi_vals[i], eta_vals[j]);
-
-        // Sum the shape functions associated with nodal values (u).
-        // For a partition of unity, these should sum to 1 (if only u-DOFs are
-        // considered).
-        double sumN = N[0] + N[4] + N[8] + N[12];
-        double sumXi = dNdxi[0] + dNdxi[4] + dNdxi[8] + dNdxi[12];
-        double sumEta = dNdeta[0] + dNdeta[4] + dNdeta[8] + dNdeta[12];
-
-        PetscPrintf(PETSC_COMM_WORLD,
-                    " at (ξ,η)=(% .1f,% .1f): ΣN^u=% .6f, Σ∂N^u/∂ξ=% .6f, "
-                    "Σ∂N^u/∂η=% .6f\n",
-                    xi_vals[i], eta_vals[j], sumN, sumXi, sumEta);
+  if (dat.Nsample_R2 > 0) {
+    if (rank == 0) {
+      PetscPrintf(PETSC_COMM_WORLD,
+                  "\n=== STARTING EMR SIMULATION (R2 & H Sweep) ===\n");
+      // Initialize Output File
+      FILE *fp = fopen("../output/EMRdata.out", "w");
+      if (fp) {
+        fprintf(fp, "# H(T)  Ro(Ohm)  R(H)(Ohm)  EMR(%%)\n");
+        fclose(fp);
       }
     }
-    PetscPrintf(PETSC_COMM_WORLD,
-                "──────────────────────────────────────────────────\n");
+
+    // R2 Sweep Loop
+    for (int i_R2 = 0; i_R2 < dat.Nsample_R2; ++i_R2) {
+      double R2_curr = dat.R2min;
+      if (dat.Nsample_R2 > 1) {
+        R2_curr = dat.R2min + i_R2 * dat.dR2;
+      }
+      dat.R2 = R2_curr;
+
+      PetscPrintf(PETSC_COMM_WORLD, "\n>> Step %d/%d: R2 = %.6e m\n", i_R2 + 1,
+                  dat.Nsample_R2, dat.R2);
+
+      // 1. Generate Mesh for current R2
+      // Rank 0 generates, then all reload.
+      if (dat.auto_generate_mesh) {
+        if (rank == 0) {
+          fprintf(stderr, "DEBUG: Calling generate_mesh...\n");
+          // generate_mesh calls generate_emr_mesh which uses dat.R2
+          ierr = generate_mesh(dat, dat.node_elem);
+          CHKERRQ(ierr);
+          fprintf(stderr, "DEBUG: generate_mesh done.\n");
+        }
+        MPI_Barrier(PETSC_COMM_WORLD);
+      }
+
+      // Load Mesh Data
+      if (rank == 0)
+        fprintf(stderr, "DEBUG: Calling mesh_input...\n");
+      ierr = mesh_input(dat);
+      CHKERRQ(ierr);
+      if (rank == 0)
+        fprintf(stderr, "DEBUG: mesh_input done.\n");
+
+      // Initialize Ports
+      ierr = identify_ports(dat);
+      CHKERRQ(ierr);
+
+      dat.nglobal = dat.ngnodes * dat.dof_per_node;
+
+      // =========================================================================
+      // PRE-CALCULATE REFERENCE RESISTANCE (R0) at H=0
+      // =========================================================================
+      // We calculate R0 once per geometry (R2) to ensure consistent EMR
+      // baseline
+      {
+        if (rank == 0)
+          PetscPrintf(PETSC_COMM_WORLD,
+                      "   Computing Reference Resistance R0 at H=0.0...\n");
+
+        double H_save = dat.H_current; // Just in case
+        dat.H_current = 0.0;
+
+        global_matrices gmat_ref = {NULL, NULL};
+
+        if (rank == 0)
+          fprintf(stderr, "DEBUG: Calling make_global...\n");
+        ierr = make_global(gmat_ref, dat);
+        CHKERRQ(ierr);
+
+        if (rank == 0)
+          fprintf(stderr, "DEBUG: Calling apply_bc...\n");
+        ierr = apply_bc(gmat_ref, dat);
+        CHKERRQ(ierr);
+
+        if (rank == 0)
+          fprintf(stderr, "DEBUG: Calling petsc_diagonalizer...\n");
+        ierr = petsc_diagonalizer(gmat_ref, dat);
+        CHKERRQ(ierr);
+
+        if (rank == 0)
+          fprintf(stderr, "DEBUG: R0 calculation done.\n");
+
+        dat.Ro = dat.latest_resistance;
+
+        if (rank == 0)
+          PetscPrintf(PETSC_COMM_WORLD, "   >> R0 fixed at %.6e Ohm\n", dat.Ro);
+
+        // Restore or Reset H seems unnecessary as loop overrides it, but good
+        // practice
+      }
+
+      // H Sweep Loop
+      for (int i_H = 0; i_H < dat.Nsample_H; ++i_H) {
+        double H_curr = dat.Hmin;
+        if (dat.Nsample_H > 1) {
+          H_curr = dat.Hmin + i_H * dat.dH;
+        }
+        dat.H_current = H_curr;
+
+        if (rank == 0 && i_H % 5 == 0) {
+          PetscPrintf(PETSC_COMM_WORLD, "   .. Solving for H = %.4f T\n",
+                      dat.H_current);
+        }
+
+        // Create fresh Matrix structures
+        global_matrices gmat = {NULL, NULL};
+
+        ierr = make_global(gmat, dat);
+        CHKERRQ(ierr);
+        ierr = apply_bc(gmat, dat);
+        CHKERRQ(ierr);
+        ierr = petsc_diagonalizer(gmat, dat);
+        CHKERRQ(ierr);
+
+        // gmat cleaned up by petsc_diagonalizer
+
+        // =======================================================================
+        // DATA LOGGING (Moved from petsc_diagonalizer to ensure consistency)
+        // =======================================================================
+        double R_H = dat.latest_resistance;
+        double EMR = 0.0;
+        if (dat.Ro != 0.0) {
+          EMR = 100.0 * (R_H - dat.Ro) / dat.Ro;
+        }
+
+        if (rank == 0) {
+          FILE *fp = fopen("../output/EMRdata.out", "a");
+          if (fp) {
+            // Format: H  R0  R(H)  EMR
+            fprintf(fp, "%.4f  %.6e  %.6e  %.4f\n", dat.H_current, dat.Ro, R_H,
+                    EMR);
+            fclose(fp);
+          }
+          PetscPrintf(PETSC_COMM_WORLD,
+                      "   >> H=%+.4f T: R=%.6e Ohm, EMR=%+.4f%%\n",
+                      dat.H_current, R_H, EMR);
+        }
+      }
+
+      // Cleanup Mesh before regenerating
+      FreeMesh(dat);
+    }
+
+  } else {
+    // -----------------------------------------------------------------------
+    // STANDARD SIMULATION (Single Run)
+    // -----------------------------------------------------------------------
+    if (dat.auto_generate_mesh) {
+      if (rank == 0) {
+        ierr = generate_mesh(dat, dat.node_elem);
+        CHKERRQ(ierr);
+      }
+      MPI_Barrier(PETSC_COMM_WORLD);
+    }
+    ierr = mesh_input(dat);
+    CHKERRQ(ierr);
+    dat.nglobal = dat.ngnodes * dat.dof_per_node;
+
+    global_matrices gmat;
+    ierr = make_global(gmat, dat);
+    CHKERRQ(ierr);
+    ierr = apply_bc(gmat, dat);
+    CHKERRQ(ierr);
+    ierr = petsc_diagonalizer(gmat, dat);
+    CHKERRQ(ierr);
+
+    FreeMesh(dat);
   }
 
-  // ---------------------------------------------------------------------------
-  // 9. Assemble Global System
-  // ---------------------------------------------------------------------------
-  // Construct the global stiffness matrix and load vector.
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "Assembling global system...\n");
-  CHKERRQ(ierr);
+  // Final Cleanup
+  // Free other static arrays if any
 
-  global_matrices gmat;
-  ierr = make_global(gmat, dat);
-  CHKERRQ(ierr);
-
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "Assembly complete\n");
-  CHKERRQ(ierr);
-
-  // ---------------------------------------------------------------------------
-  // 10. Apply Boundary Conditions
-  // ---------------------------------------------------------------------------
-  // Apply Dirichlet and Neumann boundary conditions to the system.
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "Applying boundary conditions...\n");
-  CHKERRQ(ierr);
-  ierr = apply_bc(gmat, dat);
-  CHKERRQ(ierr);
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "BCs applied\n");
-  CHKERRQ(ierr);
-
-  // ---------------------------------------------------------------------------
-  // 11. Solve System
-  // ---------------------------------------------------------------------------
-  // Solve the linear system Ax = b using the configured PETSc solver.
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "Solving system...\n");
-  CHKERRQ(ierr);
-  ierr = petsc_diagonalizer(gmat, dat);
-  CHKERRQ(ierr);
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "Solve + postprocess done\n");
-  CHKERRQ(ierr);
-
-  // ---------------------------------------------------------------------------
-  // 12. Finalize and Report
-  // ---------------------------------------------------------------------------
-  // Stop the timer and report total execution time.
   std::time(&t1);
   double minutes = std::difftime(t1, t0) / 60.0;
+  PetscPrintf(PETSC_COMM_WORLD, "\nTotal execution time: %.2f mins\n", minutes);
 
-  ierr = PetscPrintf(PETSC_COMM_WORLD,
-                     "===========================================\n"
-                     "Total time: %.2f mins\n"
-                     "===========================================\n",
-                     minutes);
-  CHKERRQ(ierr);
-
-  // ---------------------------------------------------------------------------
-  // 13. Cleanup Dynamic Memory
-  // ---------------------------------------------------------------------------
-  // Free dynamically allocated arrays to prevent memory leaks
-  if (dat.Convertnode != nullptr) {
-    delete[] dat.Convertnode;
-    dat.Convertnode = nullptr;
-  }
-
-  if (dat.bnode_id != nullptr) {
-    delete[] dat.bnode_id;
-    dat.bnode_id = nullptr;
-  }
-
-  if (dat.node != nullptr) {
-    for (int i = 0; i < dat.ngnodes; ++i) {
-      delete[] dat.node[i];
-    }
-    delete[] dat.node;
-    dat.node = nullptr;
-  }
-
-  if (dat.elem != nullptr) {
-    for (int i = 0; i < dat.nelem; ++i) {
-      delete[] dat.elem[i];
-    }
-    delete[] dat.elem;
-    dat.elem = nullptr;
-  }
-
-  if (dat.bnode != nullptr) {
-    for (int i = 0; i < dat.nbnode; ++i) {
-      delete[] dat.bnode[i];
-    }
-    delete[] dat.bnode;
-    dat.bnode = nullptr;
-  }
-
-  if (dat.bvalue != nullptr) {
-    for (int i = 0; i < dat.nbnode; ++i) {
-      delete[] dat.bvalue[i];
-    }
-    delete[] dat.bvalue;
-    dat.bvalue = nullptr;
-  }
-
-  if (dat.btob != nullptr) {
-    delete[] dat.btob;
-    dat.btob = nullptr;
-  }
-
-  if (dat.material != nullptr) {
-    delete[] dat.material;
-    dat.material = nullptr;
-  }
-
-  if (dat.layer_id_for_elem != nullptr) {
-    delete[] dat.layer_id_for_elem;
-    dat.layer_id_for_elem = nullptr;
-  }
-
-  if (dat.layer_id != nullptr) {
-    delete[] dat.layer_id;
-    dat.layer_id = nullptr;
-  }
-
-  if (dat.layer_ymin != nullptr) {
-    delete[] dat.layer_ymin;
-    dat.layer_ymin = nullptr;
-  }
-
-  if (dat.layer_ymax != nullptr) {
-    delete[] dat.layer_ymax;
-    dat.layer_ymax = nullptr;
-  }
-
-  if (dat.layer_material != nullptr) {
-    delete[] dat.layer_material;
-    dat.layer_material = nullptr;
-  }
-
-  if (dat.xigaus != nullptr) {
-    delete[] dat.xigaus;
-    dat.xigaus = nullptr;
-  }
-
-  if (dat.etagaus != nullptr) {
-    delete[] dat.etagaus;
-    dat.etagaus = nullptr;
-  }
-
-  if (dat.wgaus != nullptr) {
-    delete[] dat.wgaus;
-    dat.wgaus = nullptr;
-  }
-
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "Memory cleanup complete\n");
-  CHKERRQ(ierr);
-
-  // Clean up PETSc/SLEPc internal structures.
-  ierr = SlepcFinalize();
-  CHKERRQ(ierr);
-
+  SlepcFinalize();
   return EXIT_SUCCESS;
 }

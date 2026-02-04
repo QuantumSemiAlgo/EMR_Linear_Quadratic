@@ -1375,3 +1375,218 @@ inline double dN35_deta(double xi, double eta) {
          12 * pow(eta, 2) * pow(xi, 3) - 6 * pow(eta, 2) * xi + pow(xi, 5) -
          2 * pow(xi, 3) + xi;
 }
+
+// =============================================================================
+// CUBIC HERMITE SHAPE FUNCTIONS (16 DOFs)
+// =============================================================================
+// Reference: Standard Bicubic Hermite on [-1,1]x[-1,1]
+// H0..H3 associated with Node 0, H4..H7 with Node 1, etc.
+// Order: u, du/dxi, du/deta, d2u/dxideta at each node.
+
+// 1D Hermite Polynomials
+inline double h00(double t) { return (1+2*t)*(1-t)*(1-t); }
+inline double h10(double t) { return t*(1-t)*(1-t); }
+inline double h01(double t) { return t*t*(3-2*t); }
+inline double h11(double t) { return t*t*(t-1); }
+
+inline double dh00(double t) { return 6*t*(t-1); }
+inline double dh10(double t) { return (1-t)*(1-3*t); }
+inline double dh01(double t) { return 6*t*(1-t); }
+inline double dh11(double t) { return t*(3*t-2); }
+
+// Mapping to [-1, 1]: t = (x+1)/2, dt/dx = 1/2
+// Let's implement directly for xi, eta in [-1, 1]
+// Node 0: (-1, -1) -> Basis functions for Val, dxi, deta, dxideta
+
+// Helper for Bicubic Hermite
+// Phi_val = h00(x)*h00(y)
+// Phi_dxi = h10(x)*h00(y) * (dx/dxi_map)? 
+// Note: Standard definition usually assumes local coords.
+// If we use standard 0..1 Hermite:
+// H_cubic(u) for u in [0,1]. Map xi in [-1,1] to u = (xi+1)/2.
+// Correction factor for derivatives: du/dxi = 0.5.
+
+inline double H_cubic(int type, double xi) {
+    double u = (xi + 1.0) * 0.5;
+    if (type == 0) return h00(u);       // Value
+    if (type == 1) return h10(u) * 0.5; // d/dxi (scaled by du/dxi) -> No wait, h10 is for derivative DOF.
+                                        // The shape function for derivative is N_1(u). 
+                                        // Effective N for DOF u_xi is: N = h10(u) * (dxi/du)? 
+                                        // Let's stick to standard Reference Element definitions.
+    if (type == 2) return h01(u);       // Value at u=1
+    if (type == 3) return h11(u) * 0.5; // d/dxi at u=1
+    return 0.0;
+}
+// Actually, easier to write explicit formulas for [-1,1]
+// N0 = 1/8 * (1-xi)**2 * (2+xi) * (1-eta)**2 * (2+eta) -- Node 0 Val ?
+// Let's use the explicit tensor product forms.
+
+// Node 0 (-1, -1)
+inline double H0(double xi, double eta) { // Val
+    return 0.0625 * (xi-1)*(xi-1)*(2+xi) * (eta-1)*(eta-1)*(2+eta);
+}
+inline double H1(double xi, double eta) { // dxi
+    return 0.0625 * (xi-1)*(xi-1)*(xi+1) * (eta-1)*(eta-1)*(2+eta);
+}
+inline double H2(double xi, double eta) { // deta
+    return 0.0625 * (xi-1)*(xi-1)*(2+xi) * (eta-1)*(eta-1)*(eta+1);
+}
+inline double H3(double xi, double eta) { // dxideta
+    return 0.0625 * (xi-1)*(xi-1)*(xi+1) * (eta-1)*(eta-1)*(eta+1);
+}
+
+// Node 1 (1, -1)
+inline double H4(double xi, double eta) { // Val
+    return 0.0625 * (xi+1)*(xi+1)*(2-xi) * (eta-1)*(eta-1)*(2+eta);
+}
+inline double H5(double xi, double eta) { // dxi
+    return 0.0625 * (xi+1)*(xi+1)*(xi-1) * (eta-1)*(eta-1)*(2+eta);
+}
+inline double H6(double xi, double eta) { // deta
+    return 0.0625 * (xi+1)*(xi+1)*(2-xi) * (eta-1)*(eta-1)*(eta+1);
+}
+inline double H7(double xi, double eta) { // dxideta
+    return 0.0625 * (xi+1)*(xi+1)*(xi-1) * (eta-1)*(eta-1)*(eta+1);
+}
+
+// Node 2 (1, 1)
+inline double H8(double xi, double eta) { // Val
+    return 0.0625 * (xi+1)*(xi+1)*(2-xi) * (eta+1)*(eta+1)*(2-eta);
+}
+inline double H9(double xi, double eta) { // dxi
+    return 0.0625 * (xi+1)*(xi+1)*(xi-1) * (eta+1)*(eta+1)*(2-eta);
+}
+inline double H10(double xi, double eta) { // deta
+    return 0.0625 * (xi+1)*(xi+1)*(2-xi) * (eta+1)*(eta+1)*(eta-1);
+}
+inline double H11(double xi, double eta) { // dxideta
+    return 0.0625 * (xi+1)*(xi+1)*(xi-1) * (eta+1)*(eta+1)*(eta-1);
+}
+
+// Node 3 (-1, 1)
+inline double H12(double xi, double eta) { // Val
+    return 0.0625 * (xi-1)*(xi-1)*(2+xi) * (eta+1)*(eta+1)*(2-eta);
+}
+inline double H13(double xi, double eta) { // dxi
+    return 0.0625 * (xi-1)*(xi-1)*(xi+1) * (eta+1)*(eta+1)*(2-eta);
+}
+inline double H14(double xi, double eta) { // deta
+    return 0.0625 * (xi-1)*(xi-1)*(2+xi) * (eta+1)*(eta+1)*(eta-1);
+}
+inline double H15(double xi, double eta) { // dxideta
+    return 0.0625 * (xi-1)*(xi-1)*(xi+1) * (eta+1)*(eta+1)*(eta-1);
+}
+
+// --- DERIVATIVES d/dxi ---
+// Node 0
+inline double dH0_dxi(double xi, double eta) {
+    return 0.0625 * (3*xi*xi - 3) * (eta-1)*(eta-1)*(2+eta); // Checked: d/dxi ((xi-1)^2(2+xi)) = 3xi^2-3
+}
+inline double dH1_dxi(double xi, double eta) {
+    return 0.0625 * (3*xi*xi - 2*xi - 1) * (eta-1)*(eta-1)*(2+eta);
+}
+inline double dH2_dxi(double xi, double eta) {
+    return 0.0625 * (3*xi*xi - 3) * (eta-1)*(eta-1)*(eta+1);
+}
+inline double dH3_dxi(double xi, double eta) {
+    return 0.0625 * (3*xi*xi - 2*xi - 1) * (eta-1)*(eta-1)*(eta+1);
+}
+
+// Node 1
+inline double dH4_dxi(double xi, double eta) {
+    return 0.0625 * (-3*xi*xi + 3) * (eta-1)*(eta-1)*(2+eta);
+}
+inline double dH5_dxi(double xi, double eta) {
+    return 0.0625 * (3*xi*xi + 2*xi - 1) * (eta-1)*(eta-1)*(2+eta);
+}
+inline double dH6_dxi(double xi, double eta) {
+    return 0.0625 * (-3*xi*xi + 3) * (eta-1)*(eta-1)*(eta+1);
+}
+inline double dH7_dxi(double xi, double eta) {
+    return 0.0625 * (3*xi*xi + 2*xi - 1) * (eta-1)*(eta-1)*(eta+1);
+}
+
+// Node 2
+inline double dH8_dxi(double xi, double eta) {
+    return 0.0625 * (-3*xi*xi + 3) * (eta+1)*(eta+1)*(2-eta);
+}
+inline double dH9_dxi(double xi, double eta) {
+    return 0.0625 * (3*xi*xi + 2*xi - 1) * (eta+1)*(eta+1)*(2-eta);
+}
+inline double dH10_dxi(double xi, double eta) {
+    return 0.0625 * (-3*xi*xi + 3) * (eta+1)*(eta+1)*(eta-1);
+}
+inline double dH11_dxi(double xi, double eta) {
+    return 0.0625 * (3*xi*xi + 2*xi - 1) * (eta+1)*(eta+1)*(eta-1);
+}
+
+// Node 3
+inline double dH12_dxi(double xi, double eta) {
+    return 0.0625 * (3*xi*xi - 3) * (eta+1)*(eta+1)*(2-eta);
+}
+inline double dH13_dxi(double xi, double eta) {
+    return 0.0625 * (3*xi*xi - 2*xi - 1) * (eta+1)*(eta+1)*(2-eta);
+}
+inline double dH14_dxi(double xi, double eta) {
+    return 0.0625 * (3*xi*xi - 3) * (eta+1)*(eta+1)*(eta-1);
+}
+inline double dH15_dxi(double xi, double eta) {
+    return 0.0625 * (3*xi*xi - 2*xi - 1) * (eta+1)*(eta+1)*(eta-1);
+}
+
+// --- DERIVATIVES d/deta ---
+// Node 0
+inline double dH0_deta(double xi, double eta) {
+    return 0.0625 * (xi-1)*(xi-1)*(2+xi) * (3*eta*eta - 3);
+}
+inline double dH1_deta(double xi, double eta) {
+    return 0.0625 * (xi-1)*(xi-1)*(xi+1) * (3*eta*eta - 3);
+}
+inline double dH2_deta(double xi, double eta) {
+    return 0.0625 * (xi-1)*(xi-1)*(2+xi) * (3*eta*eta - 2*eta - 1);
+}
+inline double dH3_deta(double xi, double eta) {
+    return 0.0625 * (xi-1)*(xi-1)*(xi+1) * (3*eta*eta - 2*eta - 1);
+}
+
+// Node 1
+inline double dH4_deta(double xi, double eta) {
+    return 0.0625 * (xi+1)*(xi+1)*(2-xi) * (3*eta*eta - 3);
+}
+inline double dH5_deta(double xi, double eta) {
+    return 0.0625 * (xi+1)*(xi+1)*(xi-1) * (3*eta*eta - 3);
+}
+inline double dH6_deta(double xi, double eta) {
+    return 0.0625 * (xi+1)*(xi+1)*(2-xi) * (3*eta*eta - 2*eta - 1);
+}
+inline double dH7_deta(double xi, double eta) {
+    return 0.0625 * (xi+1)*(xi+1)*(xi-1) * (3*eta*eta - 2*eta - 1);
+}
+
+// Node 2
+inline double dH8_deta(double xi, double eta) {
+    return 0.0625 * (xi+1)*(xi+1)*(2-xi) * (-3*eta*eta + 3);
+}
+inline double dH9_deta(double xi, double eta) {
+    return 0.0625 * (xi+1)*(xi+1)*(xi-1) * (-3*eta*eta + 3);
+}
+inline double dH10_deta(double xi, double eta) {
+    return 0.0625 * (xi+1)*(xi+1)*(2-xi) * (3*eta*eta + 2*eta - 1);
+}
+inline double dH11_deta(double xi, double eta) {
+    return 0.0625 * (xi+1)*(xi+1)*(xi-1) * (3*eta*eta + 2*eta - 1);
+}
+
+// Node 3
+inline double dH12_deta(double xi, double eta) {
+    return 0.0625 * (xi-1)*(xi-1)*(2+xi) * (-3*eta*eta + 3);
+}
+inline double dH13_deta(double xi, double eta) {
+    return 0.0625 * (xi-1)*(xi-1)*(xi+1) * (-3*eta*eta + 3);
+}
+inline double dH14_deta(double xi, double eta) {
+    return 0.0625 * (xi-1)*(xi-1)*(2+xi) * (3*eta*eta + 2*eta - 1);
+}
+inline double dH15_deta(double xi, double eta) {
+    return 0.0625 * (xi-1)*(xi-1)*(xi+1) * (3*eta*eta + 2*eta - 1);
+}

@@ -145,6 +145,68 @@ struct data {
   // I/O PATHS
   // =========================================================================
   char outpath[PETSC_MAX_PATH_LEN]; ///< Directory for output files
+
+  // =========================================================================
+  // EMR-SPECIFIC GEOMETRY
+  // =========================================================================
+  double R1;           ///< Outer semiconductor radius (fixed)
+  double R2;           ///< Inner metal radius (variable sweep parameter)
+  double R2min, R2max; ///< Range for R2 sweep
+  double dR2;          ///< Step size for R2 sweep
+  int Nsample_R2;      ///< Number of R2 values to simulate
+
+  // =========================================================================
+  // MATERIAL PROPERTIES
+  // =========================================================================
+  double sigma1;     ///< Conductivity of semiconductor (outer)
+  double sigma2;     ///< Conductivity of metal (inner)
+  double mu1;        ///< Mobility of semiconductor
+  double mu2;        ///< Mobility of metal
+  double n1, n2;     ///< Carrier density (semiconductor, metal)
+  double tau1, tau2; ///< Collision time
+  double m1, m2;     ///< Effective mass
+  double delta;      ///< Width parameter for Fermi function transition
+
+  // =========================================================================
+  // MAGNETIC FIELD SWEEP
+  // =========================================================================
+  double Hmin;      ///< Minimum magnetic field (Tesla)
+  double Hmax;      ///< Maximum magnetic field (Tesla)
+  double dH;        ///< Step size for H sweep
+  int Nsample_H;    ///< Number of H field values
+  double H_current; ///< Current H value in simulation
+
+  // =========================================================================
+  // ELECTRICAL PARAMETERS
+  // =========================================================================
+  double Io;                ///< Input current (Amperes)
+  double t;                 ///< Disk thickness (meters)
+  double Ro;                ///< Reference resistance (at H=0)
+  double latest_resistance; ///< Most recently calculated resistance
+
+  // =========================================================================
+  // PORT GEOMETRY
+  // =========================================================================
+  double theta1, theta2, theta3, theta4; ///< Port angular positions (x PI)
+  double width_L1, width_L2, width_L3,
+      width_L4; ///< Port angular widths (x PI)
+  int iela1, ielb1, iela2, ielb2, iela3, ielb3, iela4,
+      ielb4;                                          ///< Port element indices
+  int ina1, inb1, ina2, inb2, ina3, inb3, ina4, inb4; ///< Port node indices
+  int *port_code; ///< Array[ngnodes_t]: identifies which port each theta node
+                  ///< belongs to
+                  ///< 0=none, 1=port1, 2=port2, 3=port3, 4=port4
+
+  // =========================================================================
+  // MESH REFINEMENT AROUND R2
+  // =========================================================================
+  double width_R2;  ///< Radial width of refined zone around R2
+  double width_Rs2; ///< Width of side transition zones
+  int nelem_R2;     ///< Elements in main R2 zone
+  int nelem_Rs2;    ///< Elements in side zones
+  int nelem_L;      ///< Elements per port (angular)
+  int nelem_otherR; ///< Elements in other radial zones
+  int nelem_otherT; ///< Elements in other angular zones
 };
 
 /**

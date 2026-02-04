@@ -4,14 +4,14 @@ SLEPC_DIR   ?= /Users/aryaer/Desktop/slepc-install
 
 # =================== Compiler ===================
 # =================== Compiler ===================
-CXX          ?= mpicxx
+CXX          = $(PETSC_DIR)/bin/mpicxx
 ASAN_FLAGS   ?= -g -O1 -fsanitize=address -fno-omit-frame-pointer
 # include paths
 INC_FLAGS    = -I$(PETSC_DIR)/include \
                -I$(PETSC_DIR)/include/petsc \
                -I$(SLEPC_DIR)/include
 # combine
-CXXFLAGS     = $(INC_FLAGS) $(ASAN_FLAGS)
+CXXFLAGS     = $(INC_FLAGS) $(ASAN_FLAGS) -std=c++14
 
 # =================== Files ===================
 FILES        = readin_1 input_reader_1 main_1 utilrect_1 make_global_1 apply_bc_1 petsc_diagonalizer_1 solution_clean_1 convertnode_1 mesh_generator_1

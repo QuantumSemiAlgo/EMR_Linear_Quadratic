@@ -24,6 +24,14 @@
 PetscErrorCode generate_mesh(data &dat, int node_elem);
 
 /**
+ * @brief Generates EMR-specific mesh with radial refinement and ports
+ * @param dat Global data structure
+ * @param R2_current Current inner radius R2
+ * @return PetscErrorCode 0 on success
+ */
+PetscErrorCode generate_emr_mesh(data &dat, double R2_current);
+
+/**
  * @brief Generates node coordinate file (node.dat)
  * @param mesh_dir Output directory path
  * @param dat Global data structure

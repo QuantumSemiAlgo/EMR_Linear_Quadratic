@@ -285,14 +285,28 @@ PetscErrorCode input_reader(const char *fname, data &dat) {
   // 10) Solver Tolerances
   readin(fs, &dat.rtol, "Relative tol", 'd', "", dat.ndebug);
   readin(fs, &dat.maxit, "Max iterations", 'i', "", dat.ndebug);
+
+  // Debug
+  int rank;
+  MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+  if (rank == 0)
+    fprintf(stderr, "DEBUG: Read max iterations. Reading tolerances...\n");
+
   readin(fs, &dat.atol, "Absolute tol", 'd', "", dat.ndebug);
   readin(fs, &dat.divtol, "Divergence tol", 'd', "", dat.ndebug);
+
+  if (rank == 0)
+    fprintf(stderr, "DEBUG: Tolerances read. Reading Solver Type...\n");
 
   // 11) Solver Type
   // e.g., "cg", "gmres", etc.
   {
     char name[PETSC_MAX_PATH_LEN];
     readin(fs, name, "Solver type", 'S', "", dat.ndebug);
+
+    if (rank == 0)
+      fprintf(stderr, "DEBUG: Solver type read: %s\n", name);
+
     std::strncpy(dat.kspType, name, PETSC_MAX_PATH_LEN - 1);
     dat.kspType[PETSC_MAX_PATH_LEN - 1] = '\0';
   }
@@ -303,6 +317,79 @@ PetscErrorCode input_reader(const char *fname, data &dat) {
     readin(fs, path, "Output directory", 'S', "", dat.ndebug);
     std::memset(dat.outpath, 0, sizeof(dat.outpath));
     std::strncpy(dat.outpath, path, sizeof(dat.outpath) - 1);
+  }
+
+  // =========================================================================
+  // 13) EMR Geometry
+  // =========================================================================
+  readin(fs, &dat.R1, "Outer radius R1", 'd', "", dat.ndebug);
+  readin(fs, &dat.R2min, "R2min", 'd', "", dat.ndebug);
+  readin(fs, &dat.R2max, "R2max", 'd', "", dat.ndebug);
+  readin(fs, &dat.Nsample_R2, "Nsample_R2", 'i', "", dat.ndebug);
+  readin(fs, &dat.t, "Thickness t", 'd', "", dat.ndebug);
+
+  // =========================================================================
+  // 14) Port Positions
+  // =========================================================================
+  readin(fs, &dat.theta1, "theta1 (x PI)", 'd', "", dat.ndebug);
+  readin(fs, &dat.theta2, "theta2 (x PI)", 'd', "", dat.ndebug);
+  readin(fs, &dat.theta3, "theta3 (x PI)", 'd', "", dat.ndebug);
+  readin(fs, &dat.theta4, "theta4 (x PI)", 'd', "", dat.ndebug);
+
+  readin(fs, &dat.width_L1, "width_L1 (x PI)", 'd', "", dat.ndebug);
+  readin(fs, &dat.width_L2, "width_L2 (x PI)", 'd', "", dat.ndebug);
+  readin(fs, &dat.width_L3, "width_L3 (x PI)", 'd', "", dat.ndebug);
+  readin(fs, &dat.width_L4, "width_L4 (x PI)", 'd', "", dat.ndebug);
+
+  // =========================================================================
+  // 15) Material Properties
+  // =========================================================================
+  readin(fs, &dat.sigma1, "sigma1", 'd', "", dat.ndebug);
+  readin(fs, &dat.sigma2, "sigma2", 'd', "", dat.ndebug);
+  readin(fs, &dat.mu1, "mu1", 'd', "", dat.ndebug);
+  readin(fs, &dat.mu2, "mu2", 'd', "", dat.ndebug);
+  readin(fs, &dat.n1, "n1", 'd', "", dat.ndebug);
+  readin(fs, &dat.n2, "n2", 'd', "", dat.ndebug);
+  readin(fs, &dat.tau1, "tau1", 'd', "", dat.ndebug);
+  readin(fs, &dat.tau2, "tau2", 'd', "", dat.ndebug);
+  readin(fs, &dat.m1, "m1", 'd', "", dat.ndebug);
+  readin(fs, &dat.m2, "m2", 'd', "", dat.ndebug);
+  readin(fs, &dat.delta, "delta", 'd', "", dat.ndebug);
+
+  // =========================================================================
+  // 16) Magnetic Field Sweep
+  // =========================================================================
+  readin(fs, &dat.Hmin, "Hmin", 'd', "", dat.ndebug);
+  readin(fs, &dat.Hmax, "Hmax", 'd', "", dat.ndebug);
+  readin(fs, &dat.Nsample_H, "Nsample_H", 'i', "", dat.ndebug);
+  // Calculate dH
+  if (dat.Nsample_H > 1) {
+    dat.dH = (dat.Hmax - dat.Hmin) / (dat.Nsample_H - 1);
+  } else {
+    dat.dH = 0.0;
+  }
+
+  // =========================================================================
+  // 17) Electrical Parameters
+  // =========================================================================
+  readin(fs, &dat.Io, "Io", 'd', "", dat.ndebug);
+
+  // =========================================================================
+  // 18) Mesh Refinement
+  // =========================================================================
+  readin(fs, &dat.width_R2, "width_R2", 'd', "", dat.ndebug);
+  readin(fs, &dat.width_Rs2, "width_Rs2", 'd', "", dat.ndebug);
+  readin(fs, &dat.nelem_R2, "nelem_R2", 'i', "", dat.ndebug);
+  readin(fs, &dat.nelem_Rs2, "nelem_Rs2", 'i', "", dat.ndebug);
+  readin(fs, &dat.nelem_L, "nelem_L", 'i', "", dat.ndebug);
+  readin(fs, &dat.nelem_otherR, "nelem_otherR", 'i', "", dat.ndebug);
+  readin(fs, &dat.nelem_otherT, "nelem_otherT", 'i', "", dat.ndebug);
+
+  // Set Rout to R1 for consistency if using EMR mode
+  if (dat.use_annular) {
+    dat.Rout = dat.R1;
+    // dat.Rin will be set dynamically based on R2 in the main loop,
+    // but initially it's just R2_current
   }
 
   fs.close();

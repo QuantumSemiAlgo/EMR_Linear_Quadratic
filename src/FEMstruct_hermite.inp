@@ -1,0 +1,140 @@
+# FEM Structure Input File - CUBIC HERMITE VERSION
+# 2D EMR with 4 nodes/elem (2x2) and 4 DOFs/node
+# This gives 2×2=4 nodes in 2D, with ndof2D=2×2=4 DOFs per node
+
+# Debug level (0=silent, 1=info, 2=verbose)
+2
+
+# ============================================================================
+# GEOMETRY - EMR Disk Dimensions
+# ============================================================================
+# Outer radius R1 (10^-4 m)
+2.5
+
+# Minimum and Maximum inner radius R2 (10^-4 m)
+1.5
+1.5
+
+# Number of R2 samples for EMR curve
+1
+
+# Thickness t (10^-4 m)
+0.01
+
+# ============================================================================
+# PORT POSITIONS (multiples of PI radians)
+# ============================================================================
+# Port angles: theta1, theta2, theta3, theta4
+0.25    0.75    1.25    1.75
+
+# ============================================================================
+# MATERIAL PROPERTIES
+# ============================================================================
+# Conductivity: sigma1, sigma2 (10^4 (Ohm*m)^-1)
+1.0    5000.0
+
+# Mobility: mu1, mu2 (m^2/(V*s))
+7.7    0.0
+
+# Carrier density: n1, n2 (m^-3)
+1.0e22    1.0e28
+
+# Collision time: tau1, tau2 (s)
+1.0e-12    1.0e-14
+
+# Effective mass: m1, m2 (relative to electron mass)
+0.067    1.0
+
+# Fermi function width delta
+0.1
+
+# ============================================================================
+# ELECTRICAL PARAMETERS
+# ============================================================================
+# Input current Io (10^-3 A)
+1.0e-3
+
+# ============================================================================
+# MAGNETIC FIELD SWEEP
+# ============================================================================
+# H field range: Hmin, Hmax (Tesla)
+-1.0    1.0
+
+# ============================================================================
+# MESH REFINEMENT AROUND R2
+# ============================================================================
+# Central interval width around R2 (10^-4 m)
+0.02
+
+# Side interval width around R2 (10^-4 m)
+0.01
+
+# Number of elements in central R2 zone
+10
+
+# Number of elements in side R2 zones
+5
+
+# ============================================================================
+# PORT MESH REFINEMENT
+# ============================================================================
+# Port widths (multiples of PI)
+0.05    0.05    0.05    0.05
+
+# Number of elements per port
+5
+
+# ============================================================================
+# OTHER MESH PARAMETERS
+# ============================================================================
+# Number of elements in other radial zones
+15
+
+# Number of elements in other angular zones
+20
+
+# ============================================================================
+# OUTPUT INTERPOLATION GRID
+# ============================================================================
+# Interpolation points: ndr (radial), ndt (angular)
+100    100
+
+# ============================================================================
+# FINITE ELEMENT TYPE - CUBIC HERMITE
+# ============================================================================
+# Nodes per element (1D): 2 → gives 2×2=4 nodes in 2D
+2
+
+# Ndof (DOFs per node per direction): 2 → gives 2×2=4 DOFs per node in 2D
+# With ndof=2: Each node has φ, ∂φ/∂r, ∂φ/∂θ, ∂²φ/∂r∂θ
+2
+
+# ============================================================================
+# GAUSS QUADRATURE
+# ============================================================================
+# Order of Gauss quadrature: ngaus_r, ngaus_t
+# For cubic Hermite (degree 3), use at least 4 points
+4    4
+
+# ============================================================================
+# LINEAR SOLVER SETTINGS
+# ============================================================================
+# Relative convergence tolerance
+1.0e-7
+
+# Maximum iterations
+100000
+
+# Absolute convergence tolerance
+1.0e-50
+
+# Divergence tolerance
+1.0e5
+
+# Solver type
+gmres
+
+# ============================================================================
+# OUTPUT DIRECTORY
+# ============================================================================
+../output/

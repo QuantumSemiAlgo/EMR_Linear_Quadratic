@@ -32,9 +32,23 @@ const double RECT_BOUNDARY_TOL = 1e-20;   // Tight tolerance for rectangular
  * @param dat Reference to the global data structure.
  * @return PetscErrorCode 0 on success.
  */
+// Prototype
+PetscErrorCode apply_bc_EMR(global_matrices &gmat, data &dat);
+
 PetscErrorCode apply_bc(global_matrices &gmat, data &dat) {
   PetscErrorCode ierr;
   PetscInt stride = dat.dof_per_node;
+
+  int rank;
+  MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+  if (rank == 0)
+    fprintf(stderr, "DEBUG: Inside apply_bc. Nsample_R2=%d. Dispatching...\n",
+            dat.Nsample_R2);
+
+  // DISPATCH EMR Check
+  if (dat.Nsample_R2 > 0) {
+    return apply_bc_EMR(gmat, dat);
+  }
 
   // ---------------------------------------------------------------------------
   // 1. Determine Domain Bounds
@@ -234,6 +248,29 @@ PetscErrorCode apply_bc(global_matrices &gmat, data &dat) {
           PETSC_COMM_WORLD,
           "  BC #%d: node=%d, (x=%.3f,y=%.3f) -> u=%.6f (gdof=%d)\n", bc_count,
           node_id, x, y, bcval, gdof);
+      /*
+       * Read logic from dat
+       * iterate boundary nodes (dat.bnodes)
+       * Modify A and rhs
+       */
+
+      if (dat.ndebug > 0)
+        PetscPrintf(PETSC_COMM_WORLD, "   Debug: Entering apply_bc\n");
+      int rank;
+      MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+      if (rank == 0)
+        fprintf(stderr, "DEBUG: Inside apply_bc. nbnode=%d\n", dat.nbnode);
+
+      if (!gmat.A) {
+        if (rank == 0)
+          fprintf(stderr, "DEBUG: ERROR gmat.A is NULL in apply_bc!\n");
+        return 1;
+      }
+
+      PetscInt Istart, Iend;
+      ierr = MatGetOwnershipRange(gmat.A, &Istart, &Iend);
+      CHKERRQ(ierr);
+      ierr = VecAssemblyEnd(gmat.rhs);
       CHKERRQ(ierr);
     }
   }
@@ -299,6 +336,297 @@ PetscErrorCode apply_bc(global_matrices &gmat, data &dat) {
 
   ierr = PetscPrintf(PETSC_COMM_WORLD,
                      "Boundary conditions applied successfully\n");
+  CHKERRQ(ierr);
+
+  return 0;
+}
+
+// =============================================================================
+// HELPER: Shape Function Integration (1D) for Neumann BCs
+// =============================================================================
+// Computes integral of N[i] * N[j] * r * dTheta along a port?
+// Actually simpler: We need to distribute Total Current I0 into nodal loads.
+// Load vector F_i = Integral( J_n * N_i * dS )
+// dS = r * dTheta (at r=Rout).
+// J_n = I0 / (R * Width). (Assumed uniform).
+// So F_i = (I0 / (R*W)) * Integral( N_i * R * dTheta )
+//        = (I0 / W) * Integral( N_i * dTheta )
+//
+// We need Integral( N_i * dTheta ) over the element edge.
+// For linear elements (2 nodes on edge), Integral N_i dxi = 1.0 (from -1 to 1).
+// Jacobian from xi to theta: dTheta = (DeltaTheta / 2) * dxi.
+// So Integral( N_i dTheta ) = (DeltaTheta / 2) * Integral( N_i dxi )
+// Integral( N_i dxi ) for N_1 = (1-xi)/2 is 1.0. For N_2 = (1+xi)/2 is 1.0.
+// So Load_i = (I0 / W) * (DeltaTheta / 2) * 1.0.
+// Basically distributes current proportional to element size.
+//
+// We can implement this directly in the loop.
+
+// =============================================================================
+// EMR BOUNDARY CONDITIONS
+// =============================================================================
+PetscErrorCode apply_bc_EMR(global_matrices &gmat, data &dat) {
+  PetscErrorCode ierr;
+  ierr =
+      PetscPrintf(PETSC_COMM_WORLD,
+                  "Applying EMR Boundary Conditions (Hermite Corrected)...\n");
+  CHKERRQ(ierr);
+
+  // Identify Ports
+  // Port 1: Injection (I = Io)
+  // Port 2: Extraction (I = -Io)
+  // Port 3: Reference (V = 0)
+  // Port 4: Floating / Probe
+
+  // ==========================================================================
+  // HERMITE SPECIFIC: Constrain Tangential Derivative (d/dTheta) at ALL Ports
+  // ==========================================================================
+  // Metal contacts are equipotential surfaces -> dPhi/dTheta = 0 along the
+  // contact. This applies to Current Ports (1, 2), Voltage Ports (3, 4). DOF
+  // Mapping: 0=Val, 1=d/dr (Xi), 2=d/dTheta (Eta), 3=Mixed FIX: User requested
+  // constraining DOF 2 (ie_dof = 2).
+  if (dat.dof_per_node == 4) {
+    int tan_deriv_count = 0;
+    for (int i = 0; i < dat.ngnodes; ++i) {
+      if (dat.port_code[i] > 0) { // If node belongs to ANY port
+        // Constrain DOF 2 (Tangential Derivative d/dTheta)
+        int local_dof_eta = i * dat.dof_per_node + 2; // CORRECTED INDEX
+        PetscInt gdof_eta = dat.Convertnode[local_dof_eta];
+
+        ierr = MatZeroRows(gmat.A, 1, &gdof_eta, 1.0, NULL, NULL);
+        CHKERRQ(ierr);
+        ierr = VecSetValue(gmat.rhs, gdof_eta, 0.0, INSERT_VALUES);
+        CHKERRQ(ierr);
+        tan_deriv_count++;
+
+        // Also constrain Mixed Derivative (DOF 3)? Usually yes for boundary.
+        int local_dof_mix = i * dat.dof_per_node + 3;
+        PetscInt gdof_mix = dat.Convertnode[local_dof_mix];
+        ierr = MatZeroRows(gmat.A, 1, &gdof_mix, 1.0, NULL, NULL);
+        CHKERRQ(ierr);
+        ierr = VecSetValue(gmat.rhs, gdof_mix, 0.0, INSERT_VALUES);
+        CHKERRQ(ierr);
+      }
+    }
+    PetscPrintf(PETSC_COMM_WORLD,
+                "  Hermite: Constrained Tangential (DOF 2) & Mixed Derivs at "
+                "%d port nodes\n",
+                tan_deriv_count);
+  }
+
+  // ==========================================================================
+  // PORT 3: V=0 Reference - CONSTRAIN VALUE (DOF 0)
+  // ==========================================================================
+  // Fix: Must constrain ALL degrees of freedom for the reference nodes,
+  // not just the first one. For Hermite (dof=4), unconstrained derivatives
+  // cause singular matrix.
+  int constrained_count = 0;
+  for (int i = 0; i < dat.ngnodes; ++i) {
+    if (dat.port_code[i] == 3) {
+      // Loop over DOFs
+      if (dat.dof_per_node == 4) {
+        // CUBIC HERMITE:
+        // DOF 1 (Tangential) and DOF 3 (Mixed) are already constrained above.
+        // We MUST constrain DOF 0 (Value) to 0.0 (Reference Voltage).
+        // We MUST leave DOF 2 (Normal) FREE to allow current flow.
+
+        int d = 0; // Value
+        int local_dof = i * dat.dof_per_node + d;
+        PetscInt gdof = dat.Convertnode[local_dof];
+        ierr = MatZeroRows(gmat.A, 1, &gdof, 1.0, NULL, NULL);
+        CHKERRQ(ierr);
+        ierr = VecSetValue(gmat.rhs, gdof, 0.0, INSERT_VALUES);
+        CHKERRQ(ierr);
+
+        // (DOF 1 and 3 done above. DOF 2 left free).
+      } else {
+        // Standard (Q1/Q2/Q9?): Constrain all DOFs usually means V=0.
+        // For Q9 (Quintic), we had issues. But for Q1/Q2 dof=1.
+        for (int d = 0; d < dat.dof_per_node; ++d) {
+          int local_dof = i * dat.dof_per_node + d;
+          PetscInt gdof = dat.Convertnode[local_dof];
+          ierr = MatZeroRows(gmat.A, 1, &gdof, 1.0, NULL, NULL);
+          CHKERRQ(ierr);
+          ierr = VecSetValue(gmat.rhs, gdof, 0.0, INSERT_VALUES);
+          CHKERRQ(ierr);
+        }
+      }
+      constrained_count++;
+    }
+  }
+  PetscPrintf(
+      PETSC_COMM_WORLD,
+      "  Port 3 (Ref V=0): Constrained %d nodes (All %d DOFs per node)\n",
+      constrained_count, dat.dof_per_node);
+
+  // ==========================================================================
+  // PORTS 1 & 2: Current Injection (Neumann)
+  // ==========================================================================
+  // Current Density J1 = Io / (ArcLength). Units: A/m.
+  double J1 = dat.Io / (dat.R1 * dat.width_L1 * M_PI);
+  double J2 = -dat.Io / (dat.R1 * dat.width_L2 * M_PI);
+
+  int n_theta_elems = dat.n_x;
+  int n_rad_elems = dat.n_y;
+  int outer_row_idx = n_rad_elems - 1;
+
+  for (int ie_t = 0; ie_t < n_theta_elems; ++ie_t) {
+    // Element index in Global list
+    int ie = outer_row_idx * n_theta_elems + ie_t;
+    int n3 = dat.elem[ie][3]; // TL
+    int n2 = dat.elem[ie][2]; // TR
+    // Check ports for corner nodes (always present)
+    int p3 = dat.port_code[n3];
+    int p2 = dat.port_code[n2];
+    double J_applied = 0.0;
+
+    if (dat.node_elem == 9) {
+      // 9-node (Quadratic Edge) -> Simpson's Rule
+      // ... (Existing Q9 Logic) ...
+      int n6 = dat.elem[ie][6]; // TM
+      int p6 = dat.port_code[n6];
+
+      if (!(p3 == 1 && p2 == 1 && p6 == 1) && !(p3 == 2 && p2 == 2 && p6 == 2))
+        continue;
+      if (p3 == 1)
+        J_applied = J1;
+      else
+        J_applied = J2;
+
+      double th3 = dat.node[n3][0];
+      double th2 = dat.node[n2][0];
+      if (th2 < th3)
+        th2 += 2.0 * M_PI;
+      double dTheta = th2 - th3;
+      double ArcLen = dat.Rout * dTheta;
+
+      double load_corner = J_applied * ArcLen * (1.0 / 6.0);
+      double load_midside = J_applied * ArcLen * (4.0 / 6.0);
+
+      PetscInt gdof3 = dat.Convertnode[n3 * dat.dof_per_node + 0];
+      PetscInt gdof2 = dat.Convertnode[n2 * dat.dof_per_node + 0];
+      PetscInt gdof6 = dat.Convertnode[n6 * dat.dof_per_node + 0];
+
+      ierr = VecSetValue(gmat.rhs, gdof3, load_corner, ADD_VALUES);
+      CHKERRQ(ierr);
+      ierr = VecSetValue(gmat.rhs, gdof2, load_corner, ADD_VALUES);
+      CHKERRQ(ierr);
+      ierr = VecSetValue(gmat.rhs, gdof6, load_midside, ADD_VALUES);
+      CHKERRQ(ierr);
+
+    } else if (dat.node_elem == 4 && dat.dof_per_node == 4) {
+      // CUBIC HERMITE (4 nodes, 4 DOFs)
+      // Consistent Load Integration for Hermite Shape Functions.
+      // Along edge u in [-1, 1], J is constant.
+      // Load_i = J * (Jac=ArcLen/2) * Integral(H_i(u) du)
+      //
+      // Hermite Shapes on [-1,1]:
+      // H_val_L  (Node 0): 1/4 (1-u)^2 (2+u) -> Integral = 1
+      // H_dxi_L  (Node 0): 1/4 (1-u)^2 (1+u) -> Integral = 1/3 (Wait, check
+      // scaling) H_val_R  (Node 1): 1/4 (1+u)^2 (2-u) -> Integral = 1 H_dxi_R
+      // (Node 1): 1/4 (1+u)^2 (u-1) -> Integral = -1/3
+
+      // CAUTION: The H_dxi functions in shape_funcs.hpp might have different
+      // scalings. H1 (Node 0 dxi) = 0.0625 * (xi-1)^2 * (xi+1) ... at eta
+      // constrained? Let's assume standard reference element. Integral_{-1}^1
+      // H_val du = 1.0. Integral_{-1}^1 H_slope du = 1/3.
+
+      // Jacobian: dx/dxi = ArcLen / 2.
+      // Real Load_val = J * (ArcLen/2) * 1.0 = J * ArcLen / 2.
+      // Real Load_slope = J * (ArcLen/2) * (1/3) * (dxi/dx??)
+      // Wait, force conjugate to Slope DOF (du/dxi) depends on definition.
+      // Usually we just integrate N_i * J.
+      // So Load_slope_local = J * (ArcLen/2) * (1/3).
+
+      if (!(p3 == 1 && p2 == 1) && !(p3 == 2 && p2 == 2))
+        continue;
+      if (p3 == 1)
+        J_applied = J1;
+      else
+        J_applied = J2;
+
+      double th3 = dat.node[n3][0];
+      double th2 = dat.node[n2][0];
+      if (th2 < th3)
+        th2 += 2.0 * M_PI;
+      double dTheta = th2 - th3;
+      double ArcLen = dat.Rout * dTheta;
+
+      double jac = ArcLen / 2.0;
+
+      // Weights for [-1, 1] Integrals of Hermite polynomials
+      double w_val = 1.0;
+      double w_slope = 1.0 / 3.0;    // Node 0 (Left)
+      double w_slope_R = -1.0 / 3.0; // Node 1 (Right)
+
+      // Apply to Corner Nodes
+      // Node 3 (Left/Start):
+      PetscInt gdof3_val = dat.Convertnode[n3 * dat.dof_per_node + 0]; // Value
+      PetscInt gdof3_dxi =
+          dat.Convertnode[n3 * dat.dof_per_node + 1]; // Tangential Slope (dxi)
+
+      double load_3_val = J_applied * jac * w_val;
+      double load_3_dxi = J_applied * jac * w_slope;
+
+      ierr = VecSetValue(gmat.rhs, gdof3_val, load_3_val, ADD_VALUES);
+      CHKERRQ(ierr);
+      ierr = VecSetValue(gmat.rhs, gdof3_dxi, load_3_dxi, ADD_VALUES);
+      CHKERRQ(ierr);
+
+      // Node 2 (Right/End):
+      PetscInt gdof2_val = dat.Convertnode[n2 * dat.dof_per_node + 0]; // Value
+      PetscInt gdof2_dxi =
+          dat.Convertnode[n2 * dat.dof_per_node + 1]; // Tangential Slope (dxi)
+
+      double load_2_val = J_applied * jac * w_val;
+      double load_2_dxi = J_applied * jac * w_slope_R;
+
+      ierr = VecSetValue(gmat.rhs, gdof2_val, load_2_val, ADD_VALUES);
+      CHKERRQ(ierr);
+      ierr = VecSetValue(gmat.rhs, gdof2_dxi, load_2_dxi, ADD_VALUES);
+      CHKERRQ(ierr);
+
+    } else if (dat.node_elem == 4) {
+      // Linear Elements (Q1)
+      if (!(p3 == 1 && p2 == 1) && !(p3 == 2 && p2 == 2))
+        continue;
+      if (p3 == 1)
+        J_applied = J1;
+      else
+        J_applied = J2;
+
+      double th3 = dat.node[n3][0];
+      double th2 = dat.node[n2][0];
+      if (th2 < th3)
+        th2 += 2.0 * M_PI;
+      double dTheta = th2 - th3;
+      double ArcLen = dat.Rout * dTheta;
+
+      double load_corner = J_applied * ArcLen * 0.5;
+
+      PetscInt gdof3 = dat.Convertnode[n3 * dat.dof_per_node + 0];
+      PetscInt gdof2 = dat.Convertnode[n2 * dat.dof_per_node + 0];
+
+      ierr = VecSetValue(gmat.rhs, gdof3, load_corner, ADD_VALUES);
+      CHKERRQ(ierr);
+      ierr = VecSetValue(gmat.rhs, gdof2, load_corner, ADD_VALUES);
+      CHKERRQ(ierr);
+
+    } else {
+      // Unknown element type?
+      PetscPrintf(PETSC_COMM_WORLD,
+                  "Warning: Unknown element type in apply_bc_EMR\n");
+    }
+  }
+
+  ierr = PetscPrintf(
+      PETSC_COMM_WORLD,
+      "  Applied Neumann Current Loads to Ports 1 & 2 (DOF 0 targeted)\n");
+  CHKERRQ(ierr);
+
+  ierr = VecAssemblyBegin(gmat.rhs);
+  CHKERRQ(ierr);
+  ierr = VecAssemblyEnd(gmat.rhs);
   CHKERRQ(ierr);
 
   return 0;

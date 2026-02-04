@@ -133,23 +133,38 @@ PetscErrorCode generate_mesh(data &dat, int node_elem) {
   CHKERRQ(ierr);
 
   // Generate all mesh files
-  ierr = generate_nodes(mesh_dir, dat, nodes_x, nodes_y, dx, dy);
-  CHKERRQ(ierr);
+  if (dat.use_annular && dat.Nsample_R2 > 0) {
+    // EMR Mode: Use R2_current from data (which should be set by main loop)
+    // Note: generate_emr_mesh generates all files (nodes, elems, bnodes, etc.)
+    // For the initial call/check, we might just use a nominal R2.
+    // However, generate_mesh seems to be called once.
+    // In EMR main loop, we need to regenerate mesh for each R2.
+    // So main.cpp will likely call generate_emr_mesh directly or we adapt this.
+    // For now, let's allow generate_mesh to dispatch if it detects EMR mode
+    // params But since R2 changes, this function might be called repeatedly.
+    // We'll assume dat.R2 is set to the current value desired.
+    ierr = generate_emr_mesh(dat, dat.R2);
+    CHKERRQ(ierr);
+  } else {
+    // Standard generation
+    ierr = generate_nodes(mesh_dir, dat, nodes_x, nodes_y, dx, dy);
+    CHKERRQ(ierr);
 
-  ierr = generate_elements(mesh_dir, dat, node_elem, n_x, n_y, nodes_x);
-  CHKERRQ(ierr);
+    ierr = generate_elements(mesh_dir, dat, node_elem, n_x, n_y, nodes_x);
+    CHKERRQ(ierr);
 
-  ierr = generate_boundary_nodes(mesh_dir, dat, nodes_x, nodes_y, dx, dy);
-  CHKERRQ(ierr);
+    ierr = generate_boundary_nodes(mesh_dir, dat, nodes_x, nodes_y, dx, dy);
+    CHKERRQ(ierr);
 
-  ierr = generate_boundary_elements(mesh_dir, n_x, n_y, nodes_x, node_elem);
-  CHKERRQ(ierr);
+    ierr = generate_boundary_elements(mesh_dir, n_x, n_y, nodes_x, node_elem);
+    CHKERRQ(ierr);
 
-  ierr = generate_layer_definitions(mesh_dir, dat);
-  CHKERRQ(ierr);
+    ierr = generate_layer_definitions(mesh_dir, dat);
+    CHKERRQ(ierr);
 
-  ierr = generate_layer_mapping(mesh_dir, dat, total_elements);
-  CHKERRQ(ierr);
+    ierr = generate_layer_mapping(mesh_dir, dat, total_elements);
+    CHKERRQ(ierr);
+  }
 
   // Add verification
   ierr = verify_mesh(mesh_dir, node_elem, n_x, n_y);
@@ -157,6 +172,423 @@ PetscErrorCode generate_mesh(data &dat, int node_elem) {
 
   ierr = PetscPrintf(PETSC_COMM_WORLD, "=== Mesh generation complete ===\n\n");
   CHKERRQ(ierr);
+
+  return 0;
+}
+
+// =============================================================================
+// EMR MESH GENERATOR
+// =============================================================================
+PetscErrorCode generate_emr_mesh(data &dat, double R2_current) {
+  PetscErrorCode ierr;
+  std::string mesh_dir = (dat.node_elem == 4) ? "../mesh_4/" : "../mesh/";
+
+  // Update dat.Rin/Rout for consistency
+  // Rin is the inner boundary of the simulation domain (Metal interface is
+  // handled via sigma) Wait, EMR physics usually simulates the whole annulus R2
+  // < r < R1 ? Or 0 < r < R1 with variable sigma? The plan implies solving
+  // "modified Laplace" with variable sigma. Usually EMR has a metal geometric
+  // inhomogeneity. If we mesh the metal region (r < R2), we need R_inner_mesh <
+  // R2. If we treat metal as equipotential boundary, we mesh R2 < r < R1. Based
+  // on "R2 is inner metal radius", usually we solve in semiconductor region R2
+  // < r < R1. And apply V=constant at r=R2.  // Let's assume the domain is
+  // nearly the full Disk. However, singular at r=0. We set Rin to a small
+  // fraction of R2min.
+  dat.Rin = 1.0e-6; // 1 micron start
+  dat.Rout = dat.R1;
+
+  // 1. Construct Radial Grid (non-uniform)
+  std::vector<double> r_nodes;
+
+  // Zones:
+  // Zone 0: Core (Rin to R2 - w/2 - w_trans)  [Metal Inner]
+  // Zone 1: Transition Inner
+  // Zone 2: Interface (around R2)
+  // Zone 3: Transition Outer
+  // Zone 4: Bulk (to R1)
+
+  double r = dat.Rin;
+  r_nodes.push_back(r);
+
+  // Parse refinement params
+  int refinement_factor = (dat.node_elem == 9) ? 2 : 1;
+
+  int N_fine = dat.nelem_R2 * refinement_factor;
+  double w_fine = dat.width_R2; // Total width of fine zone
+  int N_trans = dat.nelem_Rs2 * refinement_factor;
+  double w_trans = dat.width_Rs2;
+  int N_bulk = dat.nelem_otherR * refinement_factor;
+
+  double R_interface_start = R2_current - w_fine / 2.0;
+  double R_interface_end = R2_current + w_fine / 2.0;
+
+  double R_trans_inner_start = R_interface_start - w_trans;
+  double R_trans_outer_end = R_interface_end + w_trans;
+
+  // Sanity check
+  if (R_trans_inner_start < dat.Rin) {
+    // Squeeze inner part?
+    R_trans_inner_start = dat.Rin + (R2_current - dat.Rin) * 0.5;
+    R_interface_start = R2_current - (R2_current - R_trans_inner_start) * 0.5;
+  }
+
+  // Zone 0: Core (Metal)
+  // Use, say, 1/3 of bulk elements for core? Or just define N_core?
+  // Let's use N_bulk / 2 for core.
+  int N_core = (N_bulk > 4) ? N_bulk / 2 : 4;
+
+  double dr_core = (R_trans_inner_start - r) / N_core;
+  for (int i = 0; i < N_core; ++i) {
+    r += dr_core;
+    r_nodes.push_back(r);
+  }
+
+  // Zone 1: Trans Inner
+  double dr_trans_in = (R_interface_start - r) / N_trans;
+  for (int i = 0; i < N_trans; ++i) {
+    r += dr_trans_in;
+    r_nodes.push_back(r);
+  }
+
+  // Zone 2: Interface (Fine)
+  double dr_fine = (R_interface_end - r) / N_fine;
+  for (int i = 0; i < N_fine; ++i) {
+    r += dr_fine;
+    r_nodes.push_back(r);
+  }
+
+  // Zone 3: Trans Outer
+  double dr_trans_out = (R_trans_outer_end - r) / N_trans;
+  for (int i = 0; i < N_trans; ++i) {
+    r += dr_trans_out;
+    r_nodes.push_back(r);
+  }
+
+  // Zone 4: Bulk (Semi)
+  int N_bulk_outer = N_bulk; // Use full complement
+  double r_remaining = dat.Rout - r;
+  if (r_remaining > 0) {
+    double dr_bulk = r_remaining / N_bulk_outer;
+    for (int i = 0; i < N_bulk_outer; ++i) {
+      r += dr_bulk;
+      r_nodes.push_back(r);
+    }
+  }
+  // Ensure last node is exactly Rout
+  r_nodes.back() = dat.Rout;
+
+  // 2. Construct Angular Grid (Port based)
+  std::vector<double> theta_nodes;
+  // Ports are at theta1, theta2, theta3, theta4 (centers) with widths.
+  // Standardize to [0, 2pi].
+  // theta parameters in input are x PI.
+
+  struct Port {
+    double center;
+    double width;
+    int id;
+  };
+  std::vector<Port> ports;
+  ports.push_back({dat.theta1 * M_PI, dat.width_L1 * M_PI, 1});
+  ports.push_back({dat.theta2 * M_PI, dat.width_L2 * M_PI, 2});
+  ports.push_back({dat.theta3 * M_PI, dat.width_L3 * M_PI, 3});
+  ports.push_back({dat.theta4 * M_PI, dat.width_L4 * M_PI, 4});
+
+  // Sort ports by angle
+  // Assuming theta1 < theta2 < ... for now
+
+  double current_theta = 0.0;
+  theta_nodes.push_back(current_theta);
+
+  // We need to mesh the full circle 0 to 2pi
+  // Segments:
+  // 0 -> P1_start
+  // P1_start -> P1_end
+  // P1_end -> P2_start ...
+  // ... -> 2pi
+
+  // Helper to add nodes
+  auto add_angular_segment = [&](double start, double end, int n_elem) {
+    if (n_elem <= 0)
+      return;
+    double dth = (end - start) / n_elem;
+    for (int i = 0; i < n_elem; ++i) {
+      theta_nodes.push_back(start + (i + 1) * dth);
+    }
+  };
+
+  int N_port = dat.nelem_L * refinement_factor;
+  int N_gap = dat.nelem_otherT * refinement_factor;
+
+  double last_pos = 0.0;
+
+  // Allocate port_code array
+  int n_r = r_nodes.size();
+  // Estimate total nodes for allocation (will resize later if needed but vector
+  // handles it)
+
+  // Logic to fill theta_nodes and track ports
+  // This is a bit complex to generalize for arbitrary ports, assume ordered
+  // non-overlapping.
+
+  // Port 1
+  double p1_start = ports[0].center - ports[0].width / 2.0;
+  double p1_end = ports[0].center + ports[0].width / 2.0;
+  add_angular_segment(last_pos, p1_start, N_gap); // Gap 0
+  add_angular_segment(p1_start, p1_end, N_port);  // Port 1
+  last_pos = p1_end;
+
+  // Port 2
+  double p2_start = ports[1].center - ports[1].width / 2.0;
+  double p2_end = ports[1].center + ports[1].width / 2.0;
+  add_angular_segment(last_pos, p2_start, N_gap);
+  add_angular_segment(p2_start, p2_end, N_port);
+  last_pos = p2_end;
+
+  // Port 3
+  double p3_start = ports[2].center - ports[2].width / 2.0;
+  double p3_end = ports[2].center + ports[2].width / 2.0;
+  add_angular_segment(last_pos, p3_start, N_gap);
+  add_angular_segment(p3_start, p3_end, N_port);
+  last_pos = p3_end;
+
+  // Port 4
+  double p4_start = ports[3].center - ports[3].width / 2.0;
+  double p4_end = ports[3].center + ports[3].width / 2.0;
+  add_angular_segment(last_pos, p4_start, N_gap);
+  add_angular_segment(p4_start, p4_end, N_port);
+  last_pos = p4_end;
+
+  // Final Gap
+  add_angular_segment(last_pos, 2.0 * M_PI, N_gap);
+  // Ensure exactly 2pi is end
+  theta_nodes.back() = 2.0 * M_PI;
+
+  // Remove last node (2pi) for periodicity if we were using standard periodic
+  // BC logic? But standard FEM often duplicates first/last node for topology
+  // and uses constraints. Let's keep 0 and 2pi as separate nodes in geometry,
+  // and rely on Convertnode to link them. Wait, Convertnode expects node at
+  // xmin and xmax to be linked. Here x is angular. xmin=0, xmax=1 (scaled) or
+  // 2pi. Standard logic: rectangular domain mapped to annulus. y is radial
+  // (ymin=0 -> Rin, ymax=1 -> Rout). mesh_generator produces rectangular mesh
+  // [xmin, xmax] x [ymin, ymax]. Then coordinate transform maps it.
+
+  // !! CRITICAL CHANGE !!
+  // EMR geometry is generated directly in Polar coordinates or mapped?
+  // The existing code has `generate_nodes` doing:
+  // x = xmin + ...
+  // y = ymin + ...
+  // It produces a rectangular grid in logical space.
+  // Then `generate_nodes` transforms x if annular?
+  // Let's check `generate_nodes`:
+  // "double x = dat.xmin + x_fraction * (dat.xmax - dat.xmin);"
+  // "double y = dat.ymin + j * dy;"
+  // It creates a rectangular grid.
+
+  // So we should generate the nodes in Logical space [0, 2pi] x [Rin, Rout] ?
+  // Or [0, 1] x [0, 1] and let util handle map?
+  // The global_params define xmin=0, xmax=2.0 (from input?).
+  // Usually angular domain is 0 to 1 or 0 to 2pi.
+  // Let's look at `generate_nodes` again.
+  // It writes x and y directly.
+  // If we want non-uniform mesh, we should write the correct x,y coordinates
+  // in the logical space that matches the physical mapping or modification.
+
+  // PROPOSAL:
+  // Create nodes directly with the calculated r_nodes and theta_nodes.
+  // Map them to Logical X and Y expected by the solver.
+  // Solver expects X to be angular (0 to 2pi?) and Y to be radial.
+  // If we produce `node.dat` with explicit coordinates, we bypass the uniform
+  // grid logic.
+
+  // 3. Write node.dat
+  // Nodes are indexed j (radial) then i (angular).
+  // i loops fast, j loops slow.
+
+  int n_theta = theta_nodes.size();
+  int n_rad = r_nodes.size();
+  int total_nodes = n_theta * n_rad;
+
+  // Need to update global dat params to match mesh size (Elements, not nodes)
+  dat.n_x = (n_theta - 1) / refinement_factor;
+  dat.n_y = (n_rad - 1) / refinement_factor;
+
+  std::string node_file = mesh_dir + "node.dat";
+  std::ofstream nf(node_file.c_str());
+  nf << total_nodes << "\n";
+
+  // Store port_code
+  std::vector<int> node_port_codes(total_nodes, 0);
+
+  for (int j = 0; j < n_rad; ++j) {
+    double r = r_nodes[j];
+    // Normalize y to [0, 1] if required?
+    // Existing code: y goes from ymin to ymax.
+    // If we write physical r, we might break non-annular logic?
+    // Data struct has use_annular.
+    // If use_annular, the code treats X as theta, Y as r?
+    // Let's check constants/coordinate transforms.
+    // Assuming we just write (theta, r) in node.dat and the solver uses them as
+    // (x,y).
+
+    for (int i = 0; i < n_theta; ++i) {
+      double th = theta_nodes[i];
+      int nid = j * n_theta + i;
+
+      nf << std::setw(8) << nid << "  " << std::scientific
+         << std::setprecision(12) << th << "  " << r << "\n";
+
+      // Determine port code for this node
+      // Check if th is within any port range
+      // Only apply ports at Outer Radius (R1)? No, current I/O is usually at
+      // boundary? EMR: Ports are usually contacts on the periphery (R1). So
+      // port_code is only non-zero if r == Rout (last j).
+
+      if (j == n_rad - 1) { // Outer boundary
+        for (auto &p : ports) {
+          double start = p.center - p.width / 2.0 - 1e-6;
+          double end = p.center + p.width / 2.0 + 1e-6;
+          if (th >= start && th <= end) {
+            node_port_codes[nid] = p.id;
+            break;
+          }
+        }
+      }
+    }
+  }
+  nf.close();
+
+  // Allocate and Copy port_code to dat (optional, but dat has int *port_code)
+  if (dat.port_code)
+    delete[] dat.port_code;
+  dat.port_code = new int[total_nodes];
+  for (int i = 0; i < total_nodes; ++i)
+    dat.port_code[i] = node_port_codes[i];
+
+  // 4. Write elem.dat
+  std::string elem_file = mesh_dir + "elem.dat";
+  std::ofstream ef(elem_file.c_str());
+
+  // Element counts (should match dat.n_x, dat.n_y)
+  int n_elem_x = (n_theta - 1) / refinement_factor;
+  int n_elem_y = (n_rad - 1) / refinement_factor;
+  int total_elems = n_elem_x * n_elem_y;
+  ef << total_elems << "\n";
+
+  if (dat.node_elem == 9) {
+    // Q9 Elements
+    for (int j = 0; j < n_elem_y; ++j) {
+      for (int i = 0; i < n_elem_x; ++i) {
+        int eid = j * n_elem_x + i;
+
+        // Base indices in the dense grid
+        int i0 = 2 * i;
+        int j0 = 2 * j;
+        int nodes_x_grid = n_theta; // Width of grid
+
+        // Map 9 nodes
+        int n0 = j0 * nodes_x_grid + i0;           // BL
+        int n1 = j0 * nodes_x_grid + i0 + 2;       // BR
+        int n2 = (j0 + 2) * nodes_x_grid + i0 + 2; // TR
+        int n3 = (j0 + 2) * nodes_x_grid + i0;     // TL
+        int n4 = j0 * nodes_x_grid + i0 + 1;       // Bottom Mid
+        int n5 = (j0 + 1) * nodes_x_grid + i0 + 2; // Right Mid
+        int n6 = (j0 + 2) * nodes_x_grid + i0 + 1; // Top Mid
+        int n7 = (j0 + 1) * nodes_x_grid + i0;     // Left Mid
+        int n8 = (j0 + 1) * nodes_x_grid + i0 + 1; // Center
+
+        ef << std::setw(8) << eid << "  " << std::setw(8) << n0 << "  "
+           << std::setw(8) << n1 << "  " << std::setw(8) << n2 << "  "
+           << std::setw(8) << n3 << "  " << std::setw(8) << n4 << "  "
+           << std::setw(8) << n5 << "  " << std::setw(8) << n6 << "  "
+           << std::setw(8) << n7 << "  " << std::setw(8) << n8 << "  "
+           << std::setw(4) << 1 << "\n";
+      }
+    }
+  } else {
+    // Q4 Elements (Standard)
+    for (int j = 0; j < n_elem_y; ++j) {
+      for (int i = 0; i < n_elem_x; ++i) {
+        int eid = j * n_elem_x + i;
+        // Linear 4-node
+        int n0 = j * n_theta + i;
+        int n1 = j * n_theta + i + 1;
+        int n2 = (j + 1) * n_theta + i + 1;
+        int n3 = (j + 1) * n_theta + i;
+
+        ef << std::setw(8) << eid << "  " << std::setw(8) << n0 << "  "
+           << std::setw(8) << n1 << "  " << std::setw(8) << n2 << "  "
+           << std::setw(8) << n3 << "  " << std::setw(4) << 1
+           << "\n"; // Material 1
+      }
+    }
+  }
+  ef.close();
+
+  // 5. Write bnode.dat (Boundary Nodes)
+  // Logic: Inner (j=0) and Outer (j=n_rad-1).
+  // Also Top/Bottom if not periodic? usually periodic in theta.
+  // We'll write radial boundaries.
+
+  std::string bnode_file = mesh_dir + "bnode.dat";
+  std::ofstream bf(bnode_file.c_str());
+
+  std::vector<int> bIDs;
+  std::vector<int> bTags;
+  // Tags: 1=Inner(R2), 2=Outer(R1)
+
+  // Inner (R2)
+  for (int i = 0; i < n_theta; ++i) {
+    bIDs.push_back(0 * n_theta + i);
+    bTags.push_back(1);
+  }
+  // Outer (R1)
+  for (int i = 0; i < n_theta; ++i) {
+    bIDs.push_back((n_rad - 1) * n_theta + i);
+    bTags.push_back(2);
+  }
+
+  bf << bIDs.size() << "\n";
+  bf << 2 << "\n"; // 2 boundaries
+  for (size_t k = 0; k < bIDs.size(); ++k) {
+    int nid = bIDs[k];
+    double th = theta_nodes[nid % n_theta]; // Recover theta
+    double r = r_nodes[nid / n_theta];      // Recover r
+    bf << std::setw(8) << nid << "  " << std::scientific
+       << std::setprecision(12) << th << "  " << r << "  " << std::setw(4)
+       << bTags[k] << "\n";
+  }
+  bf.close();
+
+  // 6. Write belem.dat, layer_def, layer_map (dummies or simple)
+  // layer_map.dat
+  std::string lmap_file = mesh_dir + "layer_map.dat";
+  std::ofstream lmf(lmap_file.c_str());
+  for (int e = 0; e < total_elems; ++e) {
+    lmf << std::setw(8) << e << "  " << 0 << "\n"; // All layer 0
+  }
+  lmf.close();
+
+  // layer_def.dat
+  std::string ldef_file = mesh_dir + "layer_def.dat";
+  std::ofstream ldf(ldef_file.c_str());
+  ldf << "0  " << dat.Rin << "  " << dat.Rout << "  1\n";
+  ldf.close();
+
+  // Write DUMMY belem.dat to satisfy input_reader
+  // The solver uses bnode.dat for BCs, so belem.dat is likely unused or for
+  // viz.
+  std::string belem_file = mesh_dir + "belem.dat";
+  std::ofstream bf_dummy(belem_file.c_str());
+  if (bf_dummy.is_open()) {
+    std::time_t now = std::time(NULL);
+    bf_dummy << "# Generated: " << std::ctime(&now);
+    bf_dummy << "# Dummy belem.dat for EMR mesh\n";
+    bf_dummy << "0\n"; // 0 boundary elements
+    bf_dummy.close();
+  }
+
+  PetscPrintf(PETSC_COMM_WORLD, "DEBUG: generate_emr_mesh finishing...\n");
 
   return 0;
 }
@@ -502,7 +934,7 @@ PetscErrorCode generate_boundary_elements(const std::string &mesh_dir, int n_x,
   file << "# Parameters: n_x=" << n_x << ", n_y=" << n_y
        << ", node_elem=" << node_elem << "\n";
 
-  std::vector<std::pair<int, int> > boundary_edges;
+  std::vector<std::pair<int, int>> boundary_edges;
 
   int nodes_y = (node_elem == 4) ? (n_y + 1) : (2 * n_y + 1);
   int stride = (node_elem == 4) ? 1 : 2; // Node spacing along element edges

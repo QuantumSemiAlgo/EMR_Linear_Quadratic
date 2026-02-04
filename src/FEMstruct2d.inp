@@ -1,34 +1,16 @@
 # FEM Structure Input File
-# 2D Laplace Equation - Annular Domain with Auto Mesh Generation
+# 2D Finite Element Method for EMR in Semiconductor-Metal Hybrids
 
 # Debug level (0=silent, 1=info, 2=verbose)
-1
+2
 
 # ============================================================================
 # DOMAIN EXTENTS (LOGICAL COORDINATES)
 # ============================================================================
-# For ANNULAR domains (use_annular=1):
-#   - Logical coordinates: (x,y) ∈ [xmin,xmax] × [ymin,ymax]
-#   - Physical coordinates: (r,θ) ∈ [Rin,Rout] × [0,2π]
-#
-# CRITICAL RULES:
-#   1. Keep xmin=0, ymin=0 (required for proper coordinate mapping)
-#   2. Set xmax = ymax for square elements in logical space
-#   3. RECOMMENDATION: xmax = ymax = 2×Rout
-#
-# EXAMPLES (for proper scaling):
-#   Rout=5  → Use xmax=10,  ymax=10
-#   Rout=10 → Use xmax=20,  ymax=20
-#   Rout=20 → Use xmax=40,  ymax=40
-#
-# ✓ RIGHT: xmax=2×Rout, ymax=2×Rout
-# ============================================================================
-
 # xmin, xmax (LOGICAL radial coordinate range)
 0.0  20.0
 
 # ymin, ymax (LOGICAL angular coordinate range)
-# MUST equal xmax for optimal element quality
 0.0  20.0
 
 # ============================================================================
@@ -41,222 +23,160 @@
 # PHYSICAL DIMENSIONS (only used if use_annular=1)
 # ============================================================================
 # Inner radius (Rin) - physical units
-# Use Rin=0.0 for a complete disk
-# Use Rin>0 for an annulus (ring)
-0.0
+1.0e-5
 
 # Outer radius (Rout) - physical units
-# This defines the physical size of the domain
-# REMINDER: xmax and ymax should be set to 2×Rout (see above)
-10.0
+2.5e-4
 
 # ============================================================================
 # MESH RESOLUTION PARAMETERS
 # ============================================================================
-# n_x: Number of elements in radial direction
-# n_y: Number of elements in angular (theta) direction
-#
-# HOW TO CHOOSE n_x AND n_y:
-# --------------------------
-#
-# Rule 1: ANGULAR MODE RESOLUTION
-#   For problems with angular mode number m (e.g., sin(mθ) boundary condition):
-#   - Minimum: n_y ≥ 20×m  (coarse, may have 5-10% error)
-#   - Good:    n_y ≥ 24×m  (good resolution, 1-2% error)
-#   - Optimal: n_y ≥ 30×m  (excellent resolution, <0.5% error)
-#   
-#   EXAMPLE: For m=5 (u=10·sin(5θ) boundary condition):
-#   - Minimum: n_y ≥ 100
-#   - Good:    n_y ≥ 120  ← Current choice (24×5)
-#   - Optimal: n_y ≥ 150
-#
-# Rule 2: ELEMENT ASPECT RATIO
-#   For optimal accuracy, maintain good element aspect ratios:
-#   - Target: n_y/n_x ≈ 2.5-3.0 (gives square elements at mid-radius)
-#   - Acceptable range: n_y/n_x ∈ [2.0, 4.0]
-#   
-#   WHY? Elements should be roughly square in physical space at r=(Rin+Rout)/2
-#   
-#   At mid-radius r_mid:
-#     - Radial element size: Δr = (Rout-Rin)/n_x
-#     - Arc length: Δs = r_mid × 2π/n_y
-#     - Aspect ratio: Δs/Δr should be ≈ 1.0
-#   
-#   This gives: n_y/n_x ≈ π × (Rout+Rin)/(Rout-Rin)
-#   For Rin=0: n_y/n_x ≈ π ≈ 3.0  ← Rule of thumb!
-#
-# Rule 3: COMPUTATIONAL COST vs ACCURACY
-#   - Total elements = n_x × n_y
-#   - Total DOFs = (n_x+1) × (n_y+1) × node_elem × dof_per_node
-#   - Solve time scales roughly as DOFs^1.5 to DOFs^2
-#   - Memory scales as DOFs^1.2
-#   
-#   PRACTICAL LIMITS (for desktop/laptop):
-#   - Small:    <5,000 elements   (~20,000 DOFs)  - seconds
-#   - Medium:   5,000-20,000      (~80,000 DOFs)  - minutes
-#   - Large:    20,000-50,000     (~200,000 DOFs) - tens of minutes
-#   - Very Large: >50,000         (>500,000 DOFs) - requires HPC
-#
-# RECOMMENDED MESHES (for Rin=0, Rout=10, m=5):
-# ---------------------------------------------
-# 
-# COARSE (fast, ~5% error):
-#   n_x=20, n_y=60  →  1,200 elements, solve in <1 second
-#   Use for: Quick tests, debugging
-#
-# STANDARD (balanced, ~0.5% error):
-#   n_x=40, n_y=120 →  4,800 elements, solve in ~2 seconds  ← CURRENT
-#   Use for: Production runs, good accuracy/speed balance
-#
-# FINE (high accuracy, ~0.1% error):
-#   n_x=60, n_y=180 → 10,800 elements, solve in ~8 seconds
-#   Use for: When higher accuracy is needed
-#
-# VERY FINE (excellent accuracy, ~0.04% error):
-#   n_x=80, n_y=240 → 19,200 elements, solve in ~30 seconds
-#   Use for: Publication-quality results, convergence studies
-#
-# ULTRA FINE (overkill, ~0.02% error):
-#   n_x=100, n_y=300 → 30,000 elements, solve in ~90 seconds
-#   Use for: Only if sub-0.05% accuracy is required
-#
-# ❌ BAD CHOICES (poor aspect ratios):
-#   n_x=100, n_y=100  →  Poor! (elongated elements, worse accuracy)
-#   n_x=50,  n_y=50   →  Poor! (too coarse angularly for m=5)
-#   n_x=20,  n_y=300  →  Poor! (excessive angular resolution, slow)
-#
-# CONVERGENCE STUDY EXAMPLE:
-# --------------------------
-# To verify mesh convergence, try a sequence like:
-#   20×60, 40×120, 60×180, 80×240
-# Error should decrease by ~8× each time (for Q2 elements)
-# Stop when error change is <10% between successive refinements
-#
-# FORMULA FOR AUTOMATIC SCALING:
-# ------------------------------
-# Given desired radial element size h_r:
-#   n_x = ceil((Rout - Rin) / h_r)
-#   n_y = ceil(π × (Rout + Rin) / h_r)
-#
-# EXAMPLE: For h_r = 0.25, Rin=0, Rout=10:
-#   n_x = ceil(10/0.25) = 40
-#   n_y = ceil(π×10/0.25) = ceil(125.7) ≈ 126 → Use 120 (multiple of m=5)
-# ============================================================================
-
 # n_x (radial elements), n_y (angular elements)
-# Current: 40×120 = 4,800 elements (excellent balance!)
 20  60
 
 # ============================================================================
 # LAYER CONFIGURATION
 # ============================================================================
-# n_layers: Number of material layers (set to 1 for homogeneous domain)
-# auto_generate_mesh: 1=generate mesh automatically, 0=read from files
+# n_layers, auto_generate_mesh
  3  1
 
 # ============================================================================
 # MESH GRADING (ADVANCED)
 # ============================================================================
-# stretch_factor: Controls mesh grading in radial direction
-#   - 1.0 = Uniform spacing (equal-sized elements)
-#   - >1.0 = Graded mesh (finer near inner radius)
-#   - <1.0 = Graded mesh (finer near outer radius)
-#
-# RECOMMENDATIONS:
-#   - Use 1.0 for most problems (uniform is best for annular)
-#   - Use 1.5-2.0 if solution varies rapidly near inner radius
-#   - Use 0.5-0.7 if solution varies rapidly near outer radius
-#
-# NOTE: For uniform problems (like Laplace), keep at 1.0
+# stretch_factor
 1.0
 
 # ============================================================================
 # OUTPUT GRID RESOLUTION
 # ============================================================================
-# ndz_x, ndz_y: Number of points for solution reconstruction/visualization
-#
-# RECOMMENDATIONS:
-#   - For visualization: Use 100×100 (smooth plots)
-#   - For high-quality plots: Use 200×200 (publication quality)
-#   - For data analysis: Match or exceed mesh resolution
-#
-# NOTE: This does NOT affect solution accuracy, only output resolution
-# Higher values = smoother visualization plots, slower post-processing
+# ndz_x, ndz_y
 100  100
 
 # ============================================================================
 # ELEMENT TYPE
 # ============================================================================
-# node_elem: Nodes per element
-#   4 = Q1 (bilinear, low-order)
-#   9 = Q2 (biquadratic, high-order)  ← RECOMMENDED
-#
-# dof_per_node: Degrees of freedom per node
-#   1 = Lagrange (value only, standard FEM)
-#   4 = Hermite (value + derivatives, advanced)
-#
-# nband: Legacy bandwidth parameter (not used with PETSc sparse solvers)
-#   Always set to 0
-#
-# RECOMMENDATIONS:
-#   - Standard: node_elem=9, dof_per_node=1 (Q2 Lagrange)
-#   - High-order: node_elem=9, dof_per_node=4 (Quintic Hermite)
-#   - Fast/coarse: node_elem=4, dof_per_node=1 (Q1 Lagrange)
-#
-# CURRENT: 9-node Hermite Quintic (very high accuracy!)
-9  4  0
+# node_elem, dof_per_node, nband
+# Matching FEMstruct_hermite.inp: 2(1D nodes)^2 = 4 nodes, 2(1D dofs)^2 = 4 dofs
+9  1  0
 
 # ============================================================================
 # QUADRATURE RULE
 # ============================================================================
-# ngaus: Number of Gauss integration points per element direction
-#        (Total points = ngaus^2 for 2D elements)
-#
-# MINIMUM REQUIREMENTS (for exact integration):
-#   Q1 (4-node, dof=1):  2 points (integrates degree 3)
-#   Q2 (9-node, dof=1):  3 points (integrates degree 5)
-#   Hermite Cubic:       4 points (integrates degree 7)
-#   Hermite Quintic:     6 points (integrates degree 11)  ← CURRENT
-#
-# RECOMMENDATIONS:
-#   - Use minimum required points (most efficient)
-#   - Add +1 point for extra safety (negligible cost)
-#   - Never use fewer than minimum (causes integration errors!)
-#
-# CURRENT: 6 points for Quintic Hermite (36 total Gauss points per element)
-6
+# ngaus per side
+4
 
 # ============================================================================
 # LINEAR SOLVER SETTINGS
 # ============================================================================
-# Relative tolerance: Stop when ||r||/||b|| < rtol
-1.0e-10
+# Relative tolerance
+1.0e-7
 
 # Maximum iterations
-10000
+100000
 
-# Absolute tolerance: Stop when ||r|| < atol
+# Absolute tolerance
 1.0e-50
 
-# Divergence tolerance: Error if ||r||/||b|| > divtol
+# Divergence tolerance
 1.0e5
 
 # ============================================================================
 # SOLVER TYPE
 # ============================================================================
-# Krylov solver algorithm:
-#   gmres = Generalized Minimal Residual (default, robust)
-#   cg    = Conjugate Gradient (faster for symmetric problems)
-#   bcgs  = BiConjugate Gradient Stabilized (alternative)
-#
-# RECOMMENDATIONS:
-#   - For Laplace: Use 'gmres' or 'cg' (both work well)
-#   - For general problems: Use 'gmres' (most robust)
 gmres
 
 # ============================================================================
 # OUTPUT DIRECTORY
 # ============================================================================
-# Directory path for output files (solution, mesh, diagnostics)
-# Will be created if it doesn't exist
 ../output/
+
+# ========================================
+# 13) EMR Geometry
+# ========================================
+2.5e-4     # Outer radius R1 (2.5e-4 m)
+1.5e-4     # Minimum inner radius R2 (1.5e-4 m)
+1.5e-4     # Maximum inner radius R2 (1.5e-4 m)
+1          # Number of R2 samples (Nsample_R2)
+1.0e-6     # Thickness t (0.01 * 10^-4 = 1.0e-6 m)
+
+# ========================================
+# 14) Port Positions
+# ========================================
+0.25       # Port 1 angle (x PI) - Input
+0.75       # Port 2 angle (x PI) - Output
+1.25       # Port 3 angle (x PI) - Ref
+1.75       # Port 4 angle (x PI) - Measure
+
+0.05       # Port 1 width (x PI)
+0.05       # Port 2 width (x PI)
+0.05       # Port 3 width (x PI)
+0.05       # Port 4 width (x PI)
+
+# ========================================
+# 15) Material Properties
+# ========================================
+1.0e4      # Semiconductor conductivity (sigma1)
+5.0e7      # Metal conductivity (sigma2)
+7.7        # Semiconductor mobility (mu1)
+0.0        # Metal mobility (mu2)
+1.0e22     # Carrier density n1
+1.0e28     # Carrier density n2
+1.0e-12    # Collision time tau1
+1.0e-14    # Collision time tau2
+0.067      # Effective mass m1
+1.0        # Effective mass m2
+1.0e-9     # Fermi function width (delta)
+
+# ========================================
+# 16) MAGNETIC FIELD SWEEP
+# ========================================
+-1.0       # Minimum H field (Hmin)
+1.0        # Maximum H field (Hmax)
+21         # Number of H samples
+
+# ========================================
+# 17) ELECTRICAL PARAMETERS
+# ========================================
+1.0e-3     # Input current (Io)
+
+# ========================================
+# 18) MESH REFINEMENT (Ignored/Default)
+# ========================================
+0.2e-4     # Width around R2 (width_R2)
+0.1e-4     # Width of side zones (width_Rs2)
+10         # Elements in R2 zone (nelem_R2)
+5          # Elements in side zones (nelem_Rs2)
+5          # Elements per port (nelem_L)
+15         # Elements in other R zones (nelem_otherR)
+20         # Elements in other T zones (nelem_otherT)
+0.0        # Metal mobility (mu2)
+1.0e22     # Carrier density n1
+1.0e28     # Carrier density n2
+1.0e-12    # Collision time tau1
+1.0e-14    # Collision time tau2
+0.067      # Effective mass m1
+1.0        # Effective mass m2
+1.0e-9     # Fermi function width (delta)
+
+# ========================================
+# MAGNETIC FIELD SWEEP
+# ========================================
+-1.0       # Minimum H field (Hmin)
+1.0        # Maximum H field (Hmax)
+21         # Number of H samples
+
+# ========================================
+# ELECTRICAL PARAMETERS
+# ========================================
+1.0e-3     # Input current (Io)
+
+# ========================================
+# MESH REFINEMENT
+# ========================================
+0.2e-4     # Width around R2 (width_R2)
+0.1e-4     # Width of side zones (width_Rs2)
+10         # Elements in R2 zone (nelem_R2)
+5          # Elements in side zones (nelem_Rs2)
+5          # Elements per port (nelem_L)
+15         # Elements in other R zones (nelem_otherR)
+20         # Elements in other theta zones (nelem_otherT)
