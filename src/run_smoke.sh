@@ -19,7 +19,7 @@ echo "Output dir: ../output/smoke/"
 echo ""
 
 # Run FEM Solver with smoke config
-./Laplace ../config/FEMstruct2d_smoke.inp -ksp_rtol 1e-4 > smoke.log 2>&1
+./Laplace ../config/FEMstruct2d_smoke.inp -ksp_rtol 1e-4 > ../output/smoke/smoke.log 2>&1
 
 # Move output to smoke directory
 if [ -f "../output/EMRdata.out" ]; then
@@ -27,7 +27,7 @@ if [ -f "../output/EMRdata.out" ]; then
     echo "✓ Simulation completed"
 else
     echo "✗ ERROR: No output file generated"
-    cat smoke.log
+    cat ../output/smoke/smoke.log
     exit 1
 fi
 
