@@ -1,5 +1,5 @@
-# Use Ubuntu 22.04 LTS as base image for stability and compatibility
-FROM ubuntu:22.04
+# Use Ubuntu 20.04 LTS with older PETSc 3.12 (closer to historical dev environment)
+FROM ubuntu:20.04
 
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -7,15 +7,14 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Update package lists and install dependencies
 # - build-essential: gcc, g++, make
 # - mpi-default-dev: MPI compiler headers and libraries
-# - libpetsc-real-dev: PETSc library (real numbers)
-# - libslepc-real-dev: SLEPc library (real numbers)
+# - libpetsc-real3.12-dev: PETSc 3.12 library (real numbers)
+# - libslepc-real3.12-dev: SLEPc 3.12 library (real numbers)
 # - python3, python3-pip: For visualization scripts
-# - git: For version control (optional but good practice)
 RUN apt-get update && apt-get install -y \
     build-essential \
     mpi-default-dev \
-    libpetsc-real-dev \
-    libslepc-real-dev \
+    libpetsc-real3.12-dev \
+    libslepc-real3.12-dev \
     python3 \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
@@ -39,14 +38,15 @@ RUN mkdir -p /app/output/figures
 # Copy source code and configuration
 COPY src /app/src
 COPY config /app/config
+COPY mesh /app/mesh
 
 # Set working directory to src for building
 WORKDIR /app/src
 
 # Build the application
 # We override variables to ensure they use the container's paths if needed
-# Disable ASAN for production Docker image to avoid runtime issues and improve performance
-RUN make clean && make all ASAN_FLAGS=""
+# Use -O1 instead of -O2 to avoid optimizer-triggered memory bugs
+RUN make clean && make all ASAN_FLAGS="-g -O1"
 
 # Ensure scripts are executable
 RUN chmod +x run_emr_sweep.sh
