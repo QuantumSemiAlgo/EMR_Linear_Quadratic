@@ -335,6 +335,9 @@ PetscErrorCode make_global(global_matrices &gmat, data &dat) {
   }
 
   // Create matrix and vectors
+  // Use MATAIJ (auto-selects SEQ/MPI) and call MatSetUp before MatSetOption
+  // to avoid segfault on Linux PETSc 3.12+ when setting options on
+  // an uninitialized MPIAIJ internal structure.
   ierr = MatCreate(PETSC_COMM_WORLD, &gmat.A);
   CHKERRQ(ierr);
   ierr =
@@ -342,13 +345,13 @@ PetscErrorCode make_global(global_matrices &gmat, data &dat) {
   CHKERRQ(ierr);
   ierr = MatSetFromOptions(gmat.A);
   CHKERRQ(ierr);
-  ierr = MatSetType(gmat.A, MATMPIAIJ);
+  ierr = MatSetType(gmat.A, MATAIJ);
+  CHKERRQ(ierr);
+  ierr = MatSetUp(gmat.A);
   CHKERRQ(ierr);
   ierr = MatSetOption(gmat.A, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE);
   CHKERRQ(ierr);
   ierr = MatSetOption(gmat.A, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE);
-  CHKERRQ(ierr);
-  ierr = MatSetUp(gmat.A);
   CHKERRQ(ierr);
 
   ierr = MatCreateVecs(gmat.A, NULL, &gmat.rhs);
@@ -378,10 +381,6 @@ PetscErrorCode make_global(global_matrices &gmat, data &dat) {
     // Choose physics kernel
     if (dat.Nsample_R2 > 0) {
       // EMR MODE - use corrected function
-      if (ie == 0) {
-        // printf("DEBUG: Calling element_stiffness_EMR for ie=0\n");
-        // fflush(stdout);
-      }
       if (!dat.elem[ie]) {
         printf("FATAL: dat.elem[%d] is NULL\n", ie);
         fflush(stdout);

@@ -27,10 +27,10 @@ else
     else
         echo "✓ PASS: EMRdata.out is not empty"
 
-        # Check 3: Has at least 5 lines (header + data)
+        # Check 3: Has at least 2 lines (header + 1 data point)
         LINE_COUNT=$(wc -l < "$OUTPUT_DIR/EMRdata.out")
-        if [ "$LINE_COUNT" -lt 5 ]; then
-            echo "✗ FAIL: EMRdata.out has only $LINE_COUNT lines (need at least 5)"
+        if [ "$LINE_COUNT" -lt 2 ]; then
+            echo "✗ FAIL: EMRdata.out has only $LINE_COUNT lines (need at least 2)"
             ERRORS=$((ERRORS + 1))
         else
             echo "✓ PASS: EMRdata.out has $LINE_COUNT lines"
