@@ -36,8 +36,9 @@ WORKDIR /app
 # Create output directory structure
 RUN mkdir -p /app/output/figures
 
-# Copy source code
+# Copy source code and configuration
 COPY src /app/src
+COPY config /app/config
 
 # Set working directory to src for building
 WORKDIR /app/src

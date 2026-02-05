@@ -141,8 +141,8 @@ PetscErrorCode apply_bc(global_matrices &gmat, data &dat) {
     int node_id = dat.bnode_id[bi];
 
     if (node_id < 0 || node_id >= dat.ngnodes) {
-      SETERRQ(PETSC_COMM_WORLD, PETSC_ERR_ARG_OUTOFRANGE,
-              "Invalid boundary node_id=%d", node_id);
+      SETERRQ1(PETSC_COMM_WORLD, PETSC_ERR_ARG_OUTOFRANGE,
+               "Invalid boundary node_id=%d", node_id);
     }
 
     double x = dat.node[node_id][0];

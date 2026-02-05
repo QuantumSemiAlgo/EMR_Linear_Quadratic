@@ -8,7 +8,7 @@ rm -f EMRdata.out
 echo "Starting EMR Mesh and Simulation Sweep..."
 # Ensure we use the correct input file
 # Binary is named Laplace
-./Laplace FEMstruct2d.inp -ksp_rtol 1e-4 2>&1 | tee emr_sweep.log
+./Laplace ../config/FEMstruct2d.inp -ksp_rtol 1e-4 2>&1 | tee emr_sweep.log
 
 # Check if simulation finished correctly
 if [ $? -ne 0 ]; then

@@ -653,6 +653,6 @@ PetscErrorCode locelem(double x, double y, const data &dat, int &iel) {
     }
   }
 
-  SETERRQ(PETSC_COMM_WORLD, PETSC_ERR_ARG_OUTOFRANGE,
-          "locelem: point (%g, %g) is not inside any element", x, y);
+  SETERRQ2(PETSC_COMM_WORLD, PETSC_ERR_ARG_OUTOFRANGE,
+           "locelem: point (%g, %g) is not inside any element", x, y);
 }

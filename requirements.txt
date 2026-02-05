@@ -1,0 +1,11 @@
+# Python dependencies for EMR Linear/Quadratic Simulation
+# Visualization and analysis scripts
+
+# Core numerical computing
+numpy>=1.21.0,<2.0.0
+
+# Plotting and visualization
+matplotlib>=3.5.0,<4.0.0
+
+# Scientific computing (Bessel functions, etc.)
+scipy>=1.7.0,<2.0.0

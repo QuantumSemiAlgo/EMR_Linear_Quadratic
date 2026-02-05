@@ -22,7 +22,7 @@ echo "Running simulation..."
 echo ""
 
 # Run and capture output
-/Users/aryaer/Desktop/petsc-install/bin/mpiexec -n 1 ./Laplace FEMstruct2d.inp 2>&1 | tee emr_diagnostic_output.txt
+mpiexec -n 1 ./Laplace ../config/FEMstruct2d.inp 2>&1 | tee emr_diagnostic_output.txt
 
 echo ""
 echo "════════════════════════════════════════════════════════════════"
