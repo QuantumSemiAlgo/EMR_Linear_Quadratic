@@ -251,21 +251,21 @@ PetscErrorCode petsc_diagonalizer(global_matrices &gmat, data &dat) {
                            "  Voltage at Port 3 (ref): V3 = %.12e V\n"
                            "  Voltage difference:     ΔV = %.12e V\n"
                            "  Input current:          Io = %.12e A\n"
-                           "  Resistance:         R(H=%.2f) = %.12e Ω\n"
-                           "  Reference resistance:   Ro = %.12e Ω\n",
+                           "  Resistance:         R(H=%.2f) = %.12e Ω\n",
                            V4_volts, V3_volts, V4_volts - V3_volts, I_amps,
-                           dat.H_current, R_val, dat.Ro);
+                           dat.H_current, R_val);
         CHKERRQ(ierr);
 
         if (dat.Ro > 0) {
           double EMR_percent = 100.0 * (R_val - dat.Ro) / dat.Ro;
           ierr = PetscPrintf(PETSC_COMM_WORLD,
+                             "  Reference resistance:   Ro = %.12e Ω\n"
                              "  EMR:                    = %.6f %%\n"
                              "  Resistance ratio:       R(H)/R(0) = %.6f\n"
                              "─────────────────────────────────────────────────"
                              "─────────────────\n"
                              "\n",
-                             EMR_percent, R_val / dat.Ro);
+                             dat.Ro, EMR_percent, R_val / dat.Ro);
           CHKERRQ(ierr);
         }
       }

@@ -181,8 +181,8 @@ struct data {
   // =========================================================================
   double Io;                ///< Input current (Amperes)
   double t;                 ///< Disk thickness (meters)
-  double Ro;                ///< Reference resistance (at H=0)
-  double latest_resistance; ///< Most recently calculated resistance
+  double Ro = 0.0;                ///< Reference resistance (at H=0)
+  double latest_resistance = 0.0; ///< Most recently calculated resistance
 
   // =========================================================================
   // PORT GEOMETRY

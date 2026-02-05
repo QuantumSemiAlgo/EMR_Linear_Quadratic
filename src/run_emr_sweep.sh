@@ -9,7 +9,14 @@ mkdir -p "$OUTDIR"
 
 LOG="$OUTDIR/emr_sweep.log"
 
-trap 'echo "Cancelled."; exit 130' INT
+cleanup() {
+  echo "Cancelled."
+  # kill whole process group
+  kill -- -$$ 2>/dev/null || true
+  exit 130
+}
+trap cleanup INT TERM
+set -m
 
 # Clean previous output
 rm -f ../output/EMRdata.out
