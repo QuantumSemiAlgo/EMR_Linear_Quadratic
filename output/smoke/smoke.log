@@ -1,0 +1,512 @@
+=== PETSc initialized ===
+  Domain: Xmin=0.000000, Xmax=20.000000
+  Domain: Ymin=0.000000, Ymax=20.000000
+line 22 : Use annular geometry  1
+  Annular geometry: YES
+line 28 : Inner radius  0.000010
+  Inner radius: 0.000010
+line 31 : Outer radius  0.000250
+  Outer radius: 0.000250
+  Mesh generation: n_x=10, n_y=30, layers=3, auto=1
+line 49 : Stretch factor  1.000000
+  Stretch factor: 1.0000
+  Reconstruction grid: ndz_x=100, ndz_y=100 → dzx=0.200000, dzy=0.200000
+  Elements: node_elem=4, dof_per_node=4, Band_DOF=0
+    => nele_mat=16, ndeg=16
+line 68 : Gauss pts per side  4
+  Gauss pts: 4 per side -> 16 total
+line 74 : Relative tol  0.000000
+line 77 : Max iterations  100000
+DEBUG: Read max iterations. Reading tolerances...
+line 80 : Absolute tol  0.000000
+line 83 : Divergence tol  100000.000000
+DEBUG: Tolerances read. Reading Solver Type...
+line 88 : Solver type  gmres
+DEBUG: Solver type read: gmres
+line 93 : Output directory  ../output/
+line 98 : Outer radius R1  0.000250
+line 99 : R2min  0.000150
+line 100 : R2max  0.000150
+line 101 : Nsample_R2  1
+line 102 : Thickness t  0.000001
+line 107 : theta1 (x PI)  0.250000
+line 108 : theta2 (x PI)  0.750000
+line 109 : theta3 (x PI)  1.250000
+line 110 : theta4 (x PI)  1.750000
+line 112 : width_L1 (x PI)  0.050000
+line 113 : width_L2 (x PI)  0.050000
+line 114 : width_L3 (x PI)  0.050000
+line 115 : width_L4 (x PI)  0.050000
+line 120 : sigma1  10000.000000
+line 121 : sigma2  50000000.000000
+line 122 : mu1  7.700000
+line 123 : mu2  0.000000
+line 124 : n1  10000000000000000000000.000000
+line 125 : n2  9999999999999999583119736832.000000
+line 126 : tau1  0.000000
+line 127 : tau2  0.000000
+line 128 : m1  0.067000
+line 129 : m2  1.000000
+line 130 : delta  0.000000
+line 135 : Hmin  -1.000000
+line 136 : Hmax  1.000000
+line 137 : Nsample_H  3
+line 142 : Io  0.001000
+line 147 : width_R2  0.000020
+line 148 : width_Rs2  0.000010
+line 149 : nelem_R2  10
+line 150 : nelem_Rs2  5
+line 151 : nelem_L  5
+line 152 : nelem_otherR  15
+line 153 : nelem_otherT  20
+
+=== STARTING EMR SIMULATION (R2 & H Sweep) ===
+Element type: hermite_cubic
+Output file: ../output/EMRdata_hermite_cubic.out
+
+>> Step 1/1: R2 = 1.500000e-04 m
+DEBUG: Calling generate_mesh...
+
+=== Generating mesh for 4-node elements ===
+Target directory: ../mesh_4/
+Mesh parameters: n_x=10, n_y=30, annular=1
+Cleaned old mesh files in ../mesh_4/
+WARNING: For annular geometry, ymin should be 0.0 and ymax should be 1.0
+         Current: ymin=0.000000, ymax=20.000000
+Annular domain: Rin=0.000010, Rout=0.000250
+
+=== Generating mesh for 4-node elements in ../mesh_4/ ===
+  Mesh size: 10 x 30 elements
+  Total nodes: 341, Total elements: 300
+DEBUG: generate_emr_mesh finishing...
+
+=== Verifying mesh in ../mesh_4/ ===
+  Total elements: 5040 (expected: 300)
+  First element (ID=0):
+    Corners: BL=0, BR=1, TR=122, TL=121
+=== Verification complete ===
+
+=== Mesh generation complete ===
+
+DEBUG: generate_mesh done.
+DEBUG: Calling mesh_input...
+Reading mesh from: ../mesh_4/
+Elements: nelem=5040
+Nodes: ngnodes=5203
+  Max node ID: 5202
+Boundary: nbnode=242, nboundary=2
+  read bnode[0]: file_id=0  → node_id=0  coords=(0.000,0.000)
+  read bnode[1]: file_id=1  → node_id=1  coords=(0.035,0.000)
+  read bnode[2]: file_id=2  → node_id=2  coords=(0.071,0.000)
+  read bnode[3]: file_id=3  → node_id=3  coords=(0.106,0.000)
+  read bnode[4]: file_id=4  → node_id=4  coords=(0.141,0.000)
+  read bnode[5]: file_id=5  → node_id=5  coords=(0.177,0.000)
+  read bnode[6]: file_id=6  → node_id=6  coords=(0.212,0.000)
+  read bnode[7]: file_id=7  → node_id=7  coords=(0.247,0.000)
+  read bnode[8]: file_id=8  → node_id=8  coords=(0.283,0.000)
+  read bnode[9]: file_id=9  → node_id=9  coords=(0.318,0.000)
+  read bnode[10]: file_id=10  → node_id=10  coords=(0.353,0.000)
+  read bnode[11]: file_id=11  → node_id=11  coords=(0.389,0.000)
+  read bnode[12]: file_id=12  → node_id=12  coords=(0.424,0.000)
+  read bnode[13]: file_id=13  → node_id=13  coords=(0.459,0.000)
+  read bnode[14]: file_id=14  → node_id=14  coords=(0.495,0.000)
+  read bnode[15]: file_id=15  → node_id=15  coords=(0.530,0.000)
+  read bnode[16]: file_id=16  → node_id=16  coords=(0.565,0.000)
+  read bnode[17]: file_id=17  → node_id=17  coords=(0.601,0.000)
+  read bnode[18]: file_id=18  → node_id=18  coords=(0.636,0.000)
+  read bnode[19]: file_id=19  → node_id=19  coords=(0.672,0.000)
+  read bnode[20]: file_id=20  → node_id=20  coords=(0.707,0.000)
+  read bnode[21]: file_id=21  → node_id=21  coords=(0.738,0.000)
+  read bnode[22]: file_id=22  → node_id=22  coords=(0.770,0.000)
+  read bnode[23]: file_id=23  → node_id=23  coords=(0.801,0.000)
+  read bnode[24]: file_id=24  → node_id=24  coords=(0.833,0.000)
+  read bnode[25]: file_id=25  → node_id=25  coords=(0.864,0.000)
+  read bnode[26]: file_id=26  → node_id=26  coords=(0.935,0.000)
+  read bnode[27]: file_id=27  → node_id=27  coords=(1.005,0.000)
+  read bnode[28]: file_id=28  → node_id=28  coords=(1.076,0.000)
+  read bnode[29]: file_id=29  → node_id=29  coords=(1.147,0.000)
+  read bnode[30]: file_id=30  → node_id=30  coords=(1.217,0.000)
+  read bnode[31]: file_id=31  → node_id=31  coords=(1.288,0.000)
+  read bnode[32]: file_id=32  → node_id=32  coords=(1.359,0.000)
+  read bnode[33]: file_id=33  → node_id=33  coords=(1.429,0.000)
+  read bnode[34]: file_id=34  → node_id=34  coords=(1.500,0.000)
+  read bnode[35]: file_id=35  → node_id=35  coords=(1.571,0.000)
+  read bnode[36]: file_id=36  → node_id=36  coords=(1.641,0.000)
+  read bnode[37]: file_id=37  → node_id=37  coords=(1.712,0.000)
+  read bnode[38]: file_id=38  → node_id=38  coords=(1.783,0.000)
+  read bnode[39]: file_id=39  → node_id=39  coords=(1.854,0.000)
+  read bnode[40]: file_id=40  → node_id=40  coords=(1.924,0.000)
+  read bnode[41]: file_id=41  → node_id=41  coords=(1.995,0.000)
+  read bnode[42]: file_id=42  → node_id=42  coords=(2.066,0.000)
+  read bnode[43]: file_id=43  → node_id=43  coords=(2.136,0.000)
+  read bnode[44]: file_id=44  → node_id=44  coords=(2.207,0.000)
+  read bnode[45]: file_id=45  → node_id=45  coords=(2.278,0.000)
+  read bnode[46]: file_id=46  → node_id=46  coords=(2.309,0.000)
+  read bnode[47]: file_id=47  → node_id=47  coords=(2.340,0.000)
+  read bnode[48]: file_id=48  → node_id=48  coords=(2.372,0.000)
+  read bnode[49]: file_id=49  → node_id=49  coords=(2.403,0.000)
+  read bnode[50]: file_id=50  → node_id=50  coords=(2.435,0.000)
+  read bnode[51]: file_id=51  → node_id=51  coords=(2.505,0.000)
+  read bnode[52]: file_id=52  → node_id=52  coords=(2.576,0.000)
+  read bnode[53]: file_id=53  → node_id=53  coords=(2.647,0.000)
+  read bnode[54]: file_id=54  → node_id=54  coords=(2.717,0.000)
+  read bnode[55]: file_id=55  → node_id=55  coords=(2.788,0.000)
+  read bnode[56]: file_id=56  → node_id=56  coords=(2.859,0.000)
+  read bnode[57]: file_id=57  → node_id=57  coords=(2.930,0.000)
+  read bnode[58]: file_id=58  → node_id=58  coords=(3.000,0.000)
+  read bnode[59]: file_id=59  → node_id=59  coords=(3.071,0.000)
+  read bnode[60]: file_id=60  → node_id=60  coords=(3.142,0.000)
+  read bnode[61]: file_id=61  → node_id=61  coords=(3.212,0.000)
+  read bnode[62]: file_id=62  → node_id=62  coords=(3.283,0.000)
+  read bnode[63]: file_id=63  → node_id=63  coords=(3.354,0.000)
+  read bnode[64]: file_id=64  → node_id=64  coords=(3.424,0.000)
+  read bnode[65]: file_id=65  → node_id=65  coords=(3.495,0.000)
+  read bnode[66]: file_id=66  → node_id=66  coords=(3.566,0.000)
+  read bnode[67]: file_id=67  → node_id=67  coords=(3.636,0.000)
+  read bnode[68]: file_id=68  → node_id=68  coords=(3.707,0.000)
+  read bnode[69]: file_id=69  → node_id=69  coords=(3.778,0.000)
+  read bnode[70]: file_id=70  → node_id=70  coords=(3.848,0.000)
+  read bnode[71]: file_id=71  → node_id=71  coords=(3.880,0.000)
+  read bnode[72]: file_id=72  → node_id=72  coords=(3.911,0.000)
+  read bnode[73]: file_id=73  → node_id=73  coords=(3.943,0.000)
+  read bnode[74]: file_id=74  → node_id=74  coords=(3.974,0.000)
+  read bnode[75]: file_id=75  → node_id=75  coords=(4.006,0.000)
+  read bnode[76]: file_id=76  → node_id=76  coords=(4.076,0.000)
+  read bnode[77]: file_id=77  → node_id=77  coords=(4.147,0.000)
+  read bnode[78]: file_id=78  → node_id=78  coords=(4.218,0.000)
+  read bnode[79]: file_id=79  → node_id=79  coords=(4.288,0.000)
+  read bnode[80]: file_id=80  → node_id=80  coords=(4.359,0.000)
+  read bnode[81]: file_id=81  → node_id=81  coords=(4.430,0.000)
+  read bnode[82]: file_id=82  → node_id=82  coords=(4.500,0.000)
+  read bnode[83]: file_id=83  → node_id=83  coords=(4.571,0.000)
+  read bnode[84]: file_id=84  → node_id=84  coords=(4.642,0.000)
+  read bnode[85]: file_id=85  → node_id=85  coords=(4.712,0.000)
+  read bnode[86]: file_id=86  → node_id=86  coords=(4.783,0.000)
+  read bnode[87]: file_id=87  → node_id=87  coords=(4.854,0.000)
+  read bnode[88]: file_id=88  → node_id=88  coords=(4.924,0.000)
+  read bnode[89]: file_id=89  → node_id=89  coords=(4.995,0.000)
+  read bnode[90]: file_id=90  → node_id=90  coords=(5.066,0.000)
+  read bnode[91]: file_id=91  → node_id=91  coords=(5.137,0.000)
+  read bnode[92]: file_id=92  → node_id=92  coords=(5.207,0.000)
+  read bnode[93]: file_id=93  → node_id=93  coords=(5.278,0.000)
+  read bnode[94]: file_id=94  → node_id=94  coords=(5.349,0.000)
+  read bnode[95]: file_id=95  → node_id=95  coords=(5.419,0.000)
+  read bnode[96]: file_id=96  → node_id=96  coords=(5.451,0.000)
+  read bnode[97]: file_id=97  → node_id=97  coords=(5.482,0.000)
+  read bnode[98]: file_id=98  → node_id=98  coords=(5.513,0.000)
+  read bnode[99]: file_id=99  → node_id=99  coords=(5.545,0.000)
+  read bnode[100]: file_id=100  → node_id=100  coords=(5.576,0.000)
+  read bnode[101]: file_id=101  → node_id=101  coords=(5.612,0.000)
+  read bnode[102]: file_id=102  → node_id=102  coords=(5.647,0.000)
+  read bnode[103]: file_id=103  → node_id=103  coords=(5.682,0.000)
+  read bnode[104]: file_id=104  → node_id=104  coords=(5.718,0.000)
+  read bnode[105]: file_id=105  → node_id=105  coords=(5.753,0.000)
+  read bnode[106]: file_id=106  → node_id=106  coords=(5.788,0.000)
+  read bnode[107]: file_id=107  → node_id=107  coords=(5.824,0.000)
+  read bnode[108]: file_id=108  → node_id=108  coords=(5.859,0.000)
+  read bnode[109]: file_id=109  → node_id=109  coords=(5.894,0.000)
+  read bnode[110]: file_id=110  → node_id=110  coords=(5.930,0.000)
+  read bnode[111]: file_id=111  → node_id=111  coords=(5.965,0.000)
+  read bnode[112]: file_id=112  → node_id=112  coords=(6.000,0.000)
+  read bnode[113]: file_id=113  → node_id=113  coords=(6.036,0.000)
+  read bnode[114]: file_id=114  → node_id=114  coords=(6.071,0.000)
+  read bnode[115]: file_id=115  → node_id=115  coords=(6.106,0.000)
+  read bnode[116]: file_id=116  → node_id=116  coords=(6.142,0.000)
+  read bnode[117]: file_id=117  → node_id=117  coords=(6.177,0.000)
+  read bnode[118]: file_id=118  → node_id=118  coords=(6.212,0.000)
+  read bnode[119]: file_id=119  → node_id=119  coords=(6.248,0.000)
+  read bnode[120]: file_id=120  → node_id=120  coords=(6.283,0.000)
+  read bnode[121]: file_id=5082  → node_id=5082  coords=(0.000,0.000)
+  read bnode[122]: file_id=5083  → node_id=5083  coords=(0.035,0.000)
+  read bnode[123]: file_id=5084  → node_id=5084  coords=(0.071,0.000)
+  read bnode[124]: file_id=5085  → node_id=5085  coords=(0.106,0.000)
+  read bnode[125]: file_id=5086  → node_id=5086  coords=(0.141,0.000)
+  read bnode[126]: file_id=5087  → node_id=5087  coords=(0.177,0.000)
+  read bnode[127]: file_id=5088  → node_id=5088  coords=(0.212,0.000)
+  read bnode[128]: file_id=5089  → node_id=5089  coords=(0.247,0.000)
+  read bnode[129]: file_id=5090  → node_id=5090  coords=(0.283,0.000)
+  read bnode[130]: file_id=5091  → node_id=5091  coords=(0.318,0.000)
+  read bnode[131]: file_id=5092  → node_id=5092  coords=(0.353,0.000)
+  read bnode[132]: file_id=5093  → node_id=5093  coords=(0.389,0.000)
+  read bnode[133]: file_id=5094  → node_id=5094  coords=(0.424,0.000)
+  read bnode[134]: file_id=5095  → node_id=5095  coords=(0.459,0.000)
+  read bnode[135]: file_id=5096  → node_id=5096  coords=(0.495,0.000)
+  read bnode[136]: file_id=5097  → node_id=5097  coords=(0.530,0.000)
+  read bnode[137]: file_id=5098  → node_id=5098  coords=(0.565,0.000)
+  read bnode[138]: file_id=5099  → node_id=5099  coords=(0.601,0.000)
+  read bnode[139]: file_id=5100  → node_id=5100  coords=(0.636,0.000)
+  read bnode[140]: file_id=5101  → node_id=5101  coords=(0.672,0.000)
+  read bnode[141]: file_id=5102  → node_id=5102  coords=(0.707,0.000)
+  read bnode[142]: file_id=5103  → node_id=5103  coords=(0.738,0.000)
+  read bnode[143]: file_id=5104  → node_id=5104  coords=(0.770,0.000)
+  read bnode[144]: file_id=5105  → node_id=5105  coords=(0.801,0.000)
+  read bnode[145]: file_id=5106  → node_id=5106  coords=(0.833,0.000)
+  read bnode[146]: file_id=5107  → node_id=5107  coords=(0.864,0.000)
+  read bnode[147]: file_id=5108  → node_id=5108  coords=(0.935,0.000)
+  read bnode[148]: file_id=5109  → node_id=5109  coords=(1.005,0.000)
+  read bnode[149]: file_id=5110  → node_id=5110  coords=(1.076,0.000)
+  read bnode[150]: file_id=5111  → node_id=5111  coords=(1.147,0.000)
+  read bnode[151]: file_id=5112  → node_id=5112  coords=(1.217,0.000)
+  read bnode[152]: file_id=5113  → node_id=5113  coords=(1.288,0.000)
+  read bnode[153]: file_id=5114  → node_id=5114  coords=(1.359,0.000)
+  read bnode[154]: file_id=5115  → node_id=5115  coords=(1.429,0.000)
+  read bnode[155]: file_id=5116  → node_id=5116  coords=(1.500,0.000)
+  read bnode[156]: file_id=5117  → node_id=5117  coords=(1.571,0.000)
+  read bnode[157]: file_id=5118  → node_id=5118  coords=(1.641,0.000)
+  read bnode[158]: file_id=5119  → node_id=5119  coords=(1.712,0.000)
+  read bnode[159]: file_id=5120  → node_id=5120  coords=(1.783,0.000)
+  read bnode[160]: file_id=5121  → node_id=5121  coords=(1.854,0.000)
+  read bnode[161]: file_id=5122  → node_id=5122  coords=(1.924,0.000)
+  read bnode[162]: file_id=5123  → node_id=5123  coords=(1.995,0.000)
+  read bnode[163]: file_id=5124  → node_id=5124  coords=(2.066,0.000)
+  read bnode[164]: file_id=5125  → node_id=5125  coords=(2.136,0.000)
+  read bnode[165]: file_id=5126  → node_id=5126  coords=(2.207,0.000)
+  read bnode[166]: file_id=5127  → node_id=5127  coords=(2.278,0.000)
+  read bnode[167]: file_id=5128  → node_id=5128  coords=(2.309,0.000)
+  read bnode[168]: file_id=5129  → node_id=5129  coords=(2.340,0.000)
+  read bnode[169]: file_id=5130  → node_id=5130  coords=(2.372,0.000)
+  read bnode[170]: file_id=5131  → node_id=5131  coords=(2.403,0.000)
+  read bnode[171]: file_id=5132  → node_id=5132  coords=(2.435,0.000)
+  read bnode[172]: file_id=5133  → node_id=5133  coords=(2.505,0.000)
+  read bnode[173]: file_id=5134  → node_id=5134  coords=(2.576,0.000)
+  read bnode[174]: file_id=5135  → node_id=5135  coords=(2.647,0.000)
+  read bnode[175]: file_id=5136  → node_id=5136  coords=(2.717,0.000)
+  read bnode[176]: file_id=5137  → node_id=5137  coords=(2.788,0.000)
+  read bnode[177]: file_id=5138  → node_id=5138  coords=(2.859,0.000)
+  read bnode[178]: file_id=5139  → node_id=5139  coords=(2.930,0.000)
+  read bnode[179]: file_id=5140  → node_id=5140  coords=(3.000,0.000)
+  read bnode[180]: file_id=5141  → node_id=5141  coords=(3.071,0.000)
+  read bnode[181]: file_id=5142  → node_id=5142  coords=(3.142,0.000)
+  read bnode[182]: file_id=5143  → node_id=5143  coords=(3.212,0.000)
+  read bnode[183]: file_id=5144  → node_id=5144  coords=(3.283,0.000)
+  read bnode[184]: file_id=5145  → node_id=5145  coords=(3.354,0.000)
+  read bnode[185]: file_id=5146  → node_id=5146  coords=(3.424,0.000)
+  read bnode[186]: file_id=5147  → node_id=5147  coords=(3.495,0.000)
+  read bnode[187]: file_id=5148  → node_id=5148  coords=(3.566,0.000)
+  read bnode[188]: file_id=5149  → node_id=5149  coords=(3.636,0.000)
+  read bnode[189]: file_id=5150  → node_id=5150  coords=(3.707,0.000)
+  read bnode[190]: file_id=5151  → node_id=5151  coords=(3.778,0.000)
+  read bnode[191]: file_id=5152  → node_id=5152  coords=(3.848,0.000)
+  read bnode[192]: file_id=5153  → node_id=5153  coords=(3.880,0.000)
+  read bnode[193]: file_id=5154  → node_id=5154  coords=(3.911,0.000)
+  read bnode[194]: file_id=5155  → node_id=5155  coords=(3.943,0.000)
+  read bnode[195]: file_id=5156  → node_id=5156  coords=(3.974,0.000)
+  read bnode[196]: file_id=5157  → node_id=5157  coords=(4.006,0.000)
+  read bnode[197]: file_id=5158  → node_id=5158  coords=(4.076,0.000)
+  read bnode[198]: file_id=5159  → node_id=5159  coords=(4.147,0.000)
+  read bnode[199]: file_id=5160  → node_id=5160  coords=(4.218,0.000)
+  read bnode[200]: file_id=5161  → node_id=5161  coords=(4.288,0.000)
+  read bnode[201]: file_id=5162  → node_id=5162  coords=(4.359,0.000)
+  read bnode[202]: file_id=5163  → node_id=5163  coords=(4.430,0.000)
+  read bnode[203]: file_id=5164  → node_id=5164  coords=(4.500,0.000)
+  read bnode[204]: file_id=5165  → node_id=5165  coords=(4.571,0.000)
+  read bnode[205]: file_id=5166  → node_id=5166  coords=(4.642,0.000)
+  read bnode[206]: file_id=5167  → node_id=5167  coords=(4.712,0.000)
+  read bnode[207]: file_id=5168  → node_id=5168  coords=(4.783,0.000)
+  read bnode[208]: file_id=5169  → node_id=5169  coords=(4.854,0.000)
+  read bnode[209]: file_id=5170  → node_id=5170  coords=(4.924,0.000)
+  read bnode[210]: file_id=5171  → node_id=5171  coords=(4.995,0.000)
+  read bnode[211]: file_id=5172  → node_id=5172  coords=(5.066,0.000)
+  read bnode[212]: file_id=5173  → node_id=5173  coords=(5.137,0.000)
+  read bnode[213]: file_id=5174  → node_id=5174  coords=(5.207,0.000)
+  read bnode[214]: file_id=5175  → node_id=5175  coords=(5.278,0.000)
+  read bnode[215]: file_id=5176  → node_id=5176  coords=(5.349,0.000)
+  read bnode[216]: file_id=5177  → node_id=5177  coords=(5.419,0.000)
+  read bnode[217]: file_id=5178  → node_id=5178  coords=(5.451,0.000)
+  read bnode[218]: file_id=5179  → node_id=5179  coords=(5.482,0.000)
+  read bnode[219]: file_id=5180  → node_id=5180  coords=(5.513,0.000)
+  read bnode[220]: file_id=5181  → node_id=5181  coords=(5.545,0.000)
+  read bnode[221]: file_id=5182  → node_id=5182  coords=(5.576,0.000)
+  read bnode[222]: file_id=5183  → node_id=5183  coords=(5.612,0.000)
+  read bnode[223]: file_id=5184  → node_id=5184  coords=(5.647,0.000)
+  read bnode[224]: file_id=5185  → node_id=5185  coords=(5.682,0.000)
+  read bnode[225]: file_id=5186  → node_id=5186  coords=(5.718,0.000)
+  read bnode[226]: file_id=5187  → node_id=5187  coords=(5.753,0.000)
+  read bnode[227]: file_id=5188  → node_id=5188  coords=(5.788,0.000)
+  read bnode[228]: file_id=5189  → node_id=5189  coords=(5.824,0.000)
+  read bnode[229]: file_id=5190  → node_id=5190  coords=(5.859,0.000)
+  read bnode[230]: file_id=5191  → node_id=5191  coords=(5.894,0.000)
+  read bnode[231]: file_id=5192  → node_id=5192  coords=(5.930,0.000)
+  read bnode[232]: file_id=5193  → node_id=5193  coords=(5.965,0.000)
+  read bnode[233]: file_id=5194  → node_id=5194  coords=(6.000,0.000)
+  read bnode[234]: file_id=5195  → node_id=5195  coords=(6.036,0.000)
+  read bnode[235]: file_id=5196  → node_id=5196  coords=(6.071,0.000)
+  read bnode[236]: file_id=5197  → node_id=5197  coords=(6.106,0.000)
+  read bnode[237]: file_id=5198  → node_id=5198  coords=(6.142,0.000)
+  read bnode[238]: file_id=5199  → node_id=5199  coords=(6.177,0.000)
+  read bnode[239]: file_id=5200  → node_id=5200  coords=(6.212,0.000)
+  read bnode[240]: file_id=5201  → node_id=5201  coords=(6.248,0.000)
+  read bnode[241]: file_id=5202  → node_id=5202  coords=(6.283,0.000)
+Boundary elems: nbelem=0
+Read layer_map.dat for 5040 elements
+Read layer_def.dat: 1 layers
+DEBUG: mesh_input done.
+Identifying Ports for EMR BCs...
+  Port Nodes identified: P1=18, P2=16, P3=16, P4=10
+   Computing Reference Resistance R0 at H=0.0...
+DEBUG: Calling make_global...
+Initializing node overlay for annular domain...
+Setting up node overlay for annular domain (Theta Periodicity)...
+  Tolerance: tol_x=1.666667e-02, tol_y=4.761905e-02
+  Actual domain: Theta=[0.000000, 6.283185], R=[0.000001, 0.000250]
+  Overlay: Node 120 (Theta=2pi, R=0.00000) -> Node 0 (Theta=0, R=0.00000)
+  Overlay: Node 241 (Theta=2pi, R=0.00002) -> Node 121 (Theta=0, R=0.00002)
+  Overlay: Node 362 (Theta=2pi, R=0.00004) -> Node 242 (Theta=0, R=0.00004)
+  Overlay: Node 483 (Theta=2pi, R=0.00006) -> Node 363 (Theta=0, R=0.00006)
+  Overlay: Node 604 (Theta=2pi, R=0.00007) -> Node 484 (Theta=0, R=0.00007)
+Node overlay complete: 43 periodic pairs mapped (Left=43, Right=43)
+Assembling elements 0 to 5039 on rank 0...
+DEBUG: Calling apply_bc...
+DEBUG: Inside apply_bc. Nsample_R2=1. Dispatching...
+Applying EMR Boundary Conditions (Hermite Corrected)...
+  Hermite: Constrained Tangential (DOF 2) & Mixed Derivs at 60 port nodes
+  Port 3 (Ref V=0): Constrained 16 nodes (All 4 DOFs per node)
+  Applied Neumann Current Loads to Ports 1 & 2 (DOF 0 targeted)
+DEBUG: Calling petsc_diagonalizer...
+Checking assembly: ||A||_∞ = 21020.8, ||b||_∞ = 0.000325
+Solving system...
+>>> KSP convergence:
+    Reason:     2 (CONVERGED)
+    Iterations: 23
+    Residual:   1.191974e-05
+Copying solution to overlaid DOFs...
+Copied solution to 172 overlaid DOFs
+||A x - b||_∞ = 0.000208983
+
+──────────────────────────────────────────────────────────────────
+RESISTANCE CALCULATION DETAILS:
+──────────────────────────────────────────────────────────────────
+  Voltage at Port 4 (avg): V4 = 7.341189274734e-05 V
+  Voltage at Port 3 (ref): V3 = 0.000000000000e+00 V
+  Voltage difference:     ΔV = 7.341189274734e-05 V
+  Input current:          Io = 1.000000000000e-03 A
+  Resistance:         R(H=0.00) = 7.341189274734e-02 Ω
+  >> EMR Calculation: H=0 T, V4_avg=7.34119e-05 V, R=0.073411893 Ohm
+DEBUG: R0 calculation done.
+   >> R0 fixed at 7.341189e-02 Ohm
+   .. Solving for H = -1.0000 T
+Initializing node overlay for annular domain...
+Setting up node overlay for annular domain (Theta Periodicity)...
+  Tolerance: tol_x=1.666667e-02, tol_y=4.761905e-02
+  Actual domain: Theta=[0.000000, 6.283185], R=[0.000001, 0.000250]
+  Overlay: Node 120 (Theta=2pi, R=0.00000) -> Node 0 (Theta=0, R=0.00000)
+  Overlay: Node 241 (Theta=2pi, R=0.00002) -> Node 121 (Theta=0, R=0.00002)
+  Overlay: Node 362 (Theta=2pi, R=0.00004) -> Node 242 (Theta=0, R=0.00004)
+  Overlay: Node 483 (Theta=2pi, R=0.00006) -> Node 363 (Theta=0, R=0.00006)
+  Overlay: Node 604 (Theta=2pi, R=0.00007) -> Node 484 (Theta=0, R=0.00007)
+Node overlay complete: 43 periodic pairs mapped (Left=43, Right=43)
+Assembling elements 0 to 5039 on rank 0...
+DEBUG: Inside apply_bc. Nsample_R2=1. Dispatching...
+Applying EMR Boundary Conditions (Hermite Corrected)...
+  Hermite: Constrained Tangential (DOF 2) & Mixed Derivs at 60 port nodes
+  Port 3 (Ref V=0): Constrained 16 nodes (All 4 DOFs per node)
+  Applied Neumann Current Loads to Ports 1 & 2 (DOF 0 targeted)
+Checking assembly: ||A||_∞ = 21020.8, ||b||_∞ = 0.000325
+Solving system...
+>>> KSP convergence:
+    Reason:     2 (CONVERGED)
+    Iterations: 18
+    Residual:   4.902506e-04
+Copying solution to overlaid DOFs...
+Copied solution to 172 overlaid DOFs
+||A x - b||_∞ = 9.30138e-06
+
+──────────────────────────────────────────────────────────────────
+RESISTANCE CALCULATION DETAILS:
+──────────────────────────────────────────────────────────────────
+  Voltage at Port 4 (avg): V4 = 2.622972796109e-01 V
+  Voltage at Port 3 (ref): V3 = 0.000000000000e+00 V
+  Voltage difference:     ΔV = 2.622972796109e-01 V
+  Input current:          Io = 1.000000000000e-03 A
+  Resistance:         R(H=-1.00) = 2.622972796109e+02 Ω
+  Reference resistance:   Ro = 7.341189274734e-02 Ω
+  EMR:                    = 357195.350651 %
+  Resistance ratio:       R(H)/R(0) = 3572.953507
+──────────────────────────────────────────────────────────────────
+
+  >> EMR Calculation: H=-1 T, V4_avg=0.262297 V, R=262.29728 Ohm
+   >> H=-1.0000 T: R=2.622973e+02 Ohm, EMR=+357195.3507%
+Initializing node overlay for annular domain...
+Setting up node overlay for annular domain (Theta Periodicity)...
+  Tolerance: tol_x=1.666667e-02, tol_y=4.761905e-02
+  Actual domain: Theta=[0.000000, 6.283185], R=[0.000001, 0.000250]
+  Overlay: Node 120 (Theta=2pi, R=0.00000) -> Node 0 (Theta=0, R=0.00000)
+  Overlay: Node 241 (Theta=2pi, R=0.00002) -> Node 121 (Theta=0, R=0.00002)
+  Overlay: Node 362 (Theta=2pi, R=0.00004) -> Node 242 (Theta=0, R=0.00004)
+  Overlay: Node 483 (Theta=2pi, R=0.00006) -> Node 363 (Theta=0, R=0.00006)
+  Overlay: Node 604 (Theta=2pi, R=0.00007) -> Node 484 (Theta=0, R=0.00007)
+Node overlay complete: 43 periodic pairs mapped (Left=43, Right=43)
+Assembling elements 0 to 5039 on rank 0...
+DEBUG: Inside apply_bc. Nsample_R2=1. Dispatching...
+Applying EMR Boundary Conditions (Hermite Corrected)...
+  Hermite: Constrained Tangential (DOF 2) & Mixed Derivs at 60 port nodes
+  Port 3 (Ref V=0): Constrained 16 nodes (All 4 DOFs per node)
+  Applied Neumann Current Loads to Ports 1 & 2 (DOF 0 targeted)
+Checking assembly: ||A||_∞ = 21020.8, ||b||_∞ = 0.000325
+Solving system...
+>>> KSP convergence:
+    Reason:     2 (CONVERGED)
+    Iterations: 23
+    Residual:   1.191974e-05
+Copying solution to overlaid DOFs...
+Copied solution to 172 overlaid DOFs
+||A x - b||_∞ = 0.000208983
+
+──────────────────────────────────────────────────────────────────
+RESISTANCE CALCULATION DETAILS:
+──────────────────────────────────────────────────────────────────
+  Voltage at Port 4 (avg): V4 = 7.341189274734e-05 V
+  Voltage at Port 3 (ref): V3 = 0.000000000000e+00 V
+  Voltage difference:     ΔV = 7.341189274734e-05 V
+  Input current:          Io = 1.000000000000e-03 A
+  Resistance:         R(H=0.00) = 7.341189274734e-02 Ω
+  Reference resistance:   Ro = 7.341189274734e-02 Ω
+  EMR:                    = 0.000000 %
+  Resistance ratio:       R(H)/R(0) = 1.000000
+──────────────────────────────────────────────────────────────────
+
+  >> EMR Calculation: H=0 T, V4_avg=7.34119e-05 V, R=0.073411893 Ohm
+   >> H=+0.0000 T: R=7.341189e-02 Ohm, EMR=+0.0000%
+Initializing node overlay for annular domain...
+Setting up node overlay for annular domain (Theta Periodicity)...
+  Tolerance: tol_x=1.666667e-02, tol_y=4.761905e-02
+  Actual domain: Theta=[0.000000, 6.283185], R=[0.000001, 0.000250]
+  Overlay: Node 120 (Theta=2pi, R=0.00000) -> Node 0 (Theta=0, R=0.00000)
+  Overlay: Node 241 (Theta=2pi, R=0.00002) -> Node 121 (Theta=0, R=0.00002)
+  Overlay: Node 362 (Theta=2pi, R=0.00004) -> Node 242 (Theta=0, R=0.00004)
+  Overlay: Node 483 (Theta=2pi, R=0.00006) -> Node 363 (Theta=0, R=0.00006)
+  Overlay: Node 604 (Theta=2pi, R=0.00007) -> Node 484 (Theta=0, R=0.00007)
+Node overlay complete: 43 periodic pairs mapped (Left=43, Right=43)
+Assembling elements 0 to 5039 on rank 0...
+DEBUG: Inside apply_bc. Nsample_R2=1. Dispatching...
+Applying EMR Boundary Conditions (Hermite Corrected)...
+  Hermite: Constrained Tangential (DOF 2) & Mixed Derivs at 60 port nodes
+  Port 3 (Ref V=0): Constrained 16 nodes (All 4 DOFs per node)
+  Applied Neumann Current Loads to Ports 1 & 2 (DOF 0 targeted)
+Checking assembly: ||A||_∞ = 21020.8, ||b||_∞ = 0.000325
+Solving system...
+>>> KSP convergence:
+    Reason:     2 (CONVERGED)
+    Iterations: 18
+    Residual:   4.902506e-04
+Copying solution to overlaid DOFs...
+Copied solution to 172 overlaid DOFs
+||A x - b||_∞ = 9.30138e-06
+
+──────────────────────────────────────────────────────────────────
+RESISTANCE CALCULATION DETAILS:
+──────────────────────────────────────────────────────────────────
+  Voltage at Port 4 (avg): V4 = 2.622972796109e-01 V
+  Voltage at Port 3 (ref): V3 = 0.000000000000e+00 V
+  Voltage difference:     ΔV = 2.622972796109e-01 V
+  Input current:          Io = 1.000000000000e-03 A
+  Resistance:         R(H=1.00) = 2.622972796109e+02 Ω
+  Reference resistance:   Ro = 7.341189274734e-02 Ω
+  EMR:                    = 357195.350651 %
+  Resistance ratio:       R(H)/R(0) = 3572.953507
+──────────────────────────────────────────────────────────────────
+
+  >> EMR Calculation: H=1 T, V4_avg=0.262297 V, R=262.29728 Ohm
+   >> H=+1.0000 T: R=2.622973e+02 Ohm, EMR=+357195.3507%
+
+Total execution time: 3.77 mins
