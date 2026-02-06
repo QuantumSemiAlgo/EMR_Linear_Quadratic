@@ -221,11 +221,27 @@ int main(int argc, char **argv) {
     if (rank == 0) {
       PetscPrintf(PETSC_COMM_WORLD,
                   "\n=== STARTING EMR SIMULATION (R2 & H Sweep) ===\n");
-      // Initialize Output File
-      FILE *fp = fopen("../output/EMRdata.out", "w");
+
+      // Determine element type and create type-specific filename
+      const char* elem_type = get_element_type_string(dat.node_elem, dat.dof_per_node);
+      char filename[256];
+      snprintf(filename, sizeof(filename), "../output/EMRdata_%s.out", elem_type);
+
+      PetscPrintf(PETSC_COMM_WORLD, "Element type: %s\n", elem_type);
+      PetscPrintf(PETSC_COMM_WORLD, "Output file: %s\n", filename);
+
+      // Initialize type-specific output file
+      FILE *fp = fopen(filename, "w");
       if (fp) {
         fprintf(fp, "# H(T)  Ro(Ohm)  R(H)(Ohm)  EMR(%%)\n");
         fclose(fp);
+      }
+
+      // Also create/update generic symlink for backwards compatibility
+      FILE *fp_generic = fopen("../output/EMRdata.out", "w");
+      if (fp_generic) {
+        fprintf(fp_generic, "# H(T)  Ro(Ohm)  R(H)(Ohm)  EMR(%%)\n");
+        fclose(fp_generic);
       }
     }
 
@@ -344,12 +360,25 @@ int main(int argc, char **argv) {
         }
 
         if (rank == 0) {
-          FILE *fp = fopen("../output/EMRdata.out", "a");
+          // Write to type-specific file
+          const char* elem_type = get_element_type_string(dat.node_elem, dat.dof_per_node);
+          char filename[256];
+          snprintf(filename, sizeof(filename), "../output/EMRdata_%s.out", elem_type);
+
+          FILE *fp = fopen(filename, "a");
           if (fp) {
             // Format: H  R0  R(H)  EMR
             fprintf(fp, "%.4f  %.6e  %.6e  %.4f\n", dat.H_current, dat.Ro, R_H,
                     EMR);
             fclose(fp);
+          }
+
+          // Also write to generic file for backwards compatibility
+          FILE *fp_generic = fopen("../output/EMRdata.out", "a");
+          if (fp_generic) {
+            fprintf(fp_generic, "%.4f  %.6e  %.6e  %.4f\n", dat.H_current, dat.Ro, R_H,
+                    EMR);
+            fclose(fp_generic);
           }
           PetscPrintf(PETSC_COMM_WORLD,
                       "   >> H=%+.4f T: R=%.6e Ohm, EMR=%+.4f%%\n",

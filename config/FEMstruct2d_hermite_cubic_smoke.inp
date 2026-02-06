@@ -1,0 +1,153 @@
+# FEM Structure Input File - Cubic Hermite Smoke Test
+# 2D Finite Element Method for EMR in Semiconductor-Metal Hybrids
+# Element Type: Bicubic Hermite (4 nodes, 4 DOF/node)
+# REDUCED MESH FOR SMOKE TESTING
+
+# Debug level (0=silent, 1=info, 2=verbose)
+2
+
+# ============================================================================
+# DOMAIN EXTENTS (LOGICAL COORDINATES)
+# ============================================================================
+# xmin, xmax (LOGICAL radial coordinate range)
+0.0  20.0
+
+# ymin, ymax (LOGICAL angular coordinate range)
+0.0  20.0
+
+# ============================================================================
+# GEOMETRY TYPE
+# ============================================================================
+# use_annular: 1=annular/circular domain, 0=rectangular domain
+1
+
+# ============================================================================
+# PHYSICAL DIMENSIONS (only used if use_annular=1)
+# ============================================================================
+# Inner radius (Rin) - physical units
+1.0e-5
+
+# Outer radius (Rout) - physical units
+2.5e-4
+
+# ============================================================================
+# MESH RESOLUTION PARAMETERS - REDUCED FOR SMOKE TEST
+# ============================================================================
+# n_x (radial elements), n_y (angular elements)
+10  30
+
+# ============================================================================
+# LAYER CONFIGURATION
+# ============================================================================
+# n_layers, auto_generate_mesh
+ 3  1
+
+# ============================================================================
+# MESH GRADING (ADVANCED)
+# ============================================================================
+# stretch_factor
+1.0
+
+# ============================================================================
+# OUTPUT GRID RESOLUTION
+# ============================================================================
+# ndz_x, ndz_y
+100  100
+
+# ============================================================================
+# ELEMENT TYPE - BICUBIC HERMITE
+# ============================================================================
+# node_elem, dof_per_node, nband
+# Bicubic Hermite: 4 nodes per element, 4 DOF per node (value, dx, dy, dxdy)
+4  4  0
+
+# ============================================================================
+# QUADRATURE RULE
+# ============================================================================
+# ngaus per side
+4
+
+# ============================================================================
+# LINEAR SOLVER SETTINGS
+# ============================================================================
+# Relative tolerance
+1.0e-7
+
+# Maximum iterations
+100000
+
+# Absolute tolerance
+1.0e-50
+
+# Divergence tolerance
+1.0e5
+
+# ============================================================================
+# SOLVER TYPE
+# ============================================================================
+gmres
+
+# ============================================================================
+# OUTPUT DIRECTORY
+# ============================================================================
+../output/
+
+# ========================================
+# 13) EMR Geometry
+# ========================================
+2.5e-4     # Outer radius R1 (2.5e-4 m)
+1.5e-4     # Minimum inner radius R2 (1.5e-4 m)
+1.5e-4     # Maximum inner radius R2 (1.5e-4 m)
+1          # Number of R2 samples (Nsample_R2)
+1.0e-6     # Thickness t (0.01 * 10^-4 = 1.0e-6 m)
+
+# ========================================
+# 14) Port Positions
+# ========================================
+0.25       # Port 1 angle (x PI) - Input
+0.75       # Port 2 angle (x PI) - Output
+1.25       # Port 3 angle (x PI) - Ref
+1.75       # Port 4 angle (x PI) - Measure
+
+0.05       # Port 1 width (x PI)
+0.05       # Port 2 width (x PI)
+0.05       # Port 3 width (x PI)
+0.05       # Port 4 width (x PI)
+
+# ========================================
+# 15) Material Properties
+# ========================================
+1.0e4      # Semiconductor conductivity (sigma1)
+5.0e7      # Metal conductivity (sigma2)
+7.7        # Semiconductor mobility (mu1)
+0.0        # Metal mobility (mu2)
+1.0e22     # Carrier density n1
+1.0e28     # Carrier density n2
+1.0e-12    # Collision time tau1
+1.0e-14    # Collision time tau2
+0.067      # Effective mass m1
+1.0        # Effective mass m2
+1.0e-9     # Fermi function width (delta)
+
+# ========================================
+# 16) MAGNETIC FIELD SWEEP - REDUCED FOR SMOKE TEST
+# ========================================
+-1.0       # Minimum H field (Hmin)
+1.0        # Maximum H field (Hmax)
+3          # Number of H samples (reduced from 21)
+
+# ========================================
+# 17) ELECTRICAL PARAMETERS
+# ========================================
+1.0e-3     # Input current (Io)
+
+# ========================================
+# 18) MESH REFINEMENT (Ignored/Default)
+# ========================================
+0.2e-4     # Width around R2 (width_R2)
+0.1e-4     # Width of side zones (width_Rs2)
+10         # Elements in R2 zone (nelem_R2)
+5          # Elements in side zones (nelem_Rs2)
+5          # Elements per port (nelem_L)
+15         # Elements in other R zones (nelem_otherR)
+20         # Elements in other T zones (nelem_otherT)

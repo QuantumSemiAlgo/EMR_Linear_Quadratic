@@ -218,4 +218,23 @@ struct global_matrices {
   Vec rhs; ///< Global right-hand side vector (distributed)
 };
 
+/**
+ * @brief Get element type string based on node_elem and dof_per_node
+ * @param node_elem Number of nodes per element
+ * @param dof_per_node Degrees of freedom per node
+ * @return String describing the element type
+ */
+inline const char* get_element_type_string(int node_elem, int dof_per_node) {
+  if (dof_per_node == 1) {
+    // Lagrangian elements
+    if (node_elem == 4) return "lagrangian_linear";   // Q1
+    if (node_elem == 9) return "lagrangian_quadratic"; // Q2
+  } else if (dof_per_node == 4) {
+    // Hermite elements
+    if (node_elem == 4) return "hermite_cubic";   // Bicubic Hermite
+    if (node_elem == 9) return "hermite_quintic"; // Biquintic Hermite
+  }
+  return "unknown"; // Fallback for unsupported combinations
+}
+
 #endif // GLOBAL_PARAMS_H

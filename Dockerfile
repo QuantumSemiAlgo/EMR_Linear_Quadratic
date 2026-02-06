@@ -39,6 +39,7 @@ RUN mkdir -p /app/output/figures
 COPY src /app/src
 COPY config /app/config
 COPY mesh /app/mesh
+COPY mesh_4 /app/mesh_4
 
 # Set working directory to src for building
 WORKDIR /app/src

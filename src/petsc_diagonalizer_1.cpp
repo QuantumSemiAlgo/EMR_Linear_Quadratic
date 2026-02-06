@@ -213,7 +213,7 @@ PetscErrorCode petsc_diagonalizer(global_matrices &gmat, data &dat) {
     if (rank == 0) {
       for (int i = 0; i < dat.ngnodes; ++i) {
         if (dat.port_code[i] == 4) {
-          v4_sum += PetscRealPart(sol_array[i]);
+          v4_sum += PetscRealPart(sol_array[i * dat.dof_per_node]);
           port4_nodes++;
         }
       }
